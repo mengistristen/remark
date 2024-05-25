@@ -1,15 +1,17 @@
 [package]
-name = "renew"
+name = "remark"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "renew_lib"
+name = "lib_remark"
 path = "src/lib.rs"
 
 [dependencies]
 clap = { version = "4.5.4", features = ["derive"] }
 dirs = "5.0.1"
+serde = { version = "1.0.202", features = ["derive"] }
+serde_yaml = "0.9.34"
 tempfile = "3.10.1"
 thiserror = "1.0.61"
 uuid = { version = "1.8.0", features = ["v4"] }
