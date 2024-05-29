@@ -1,4 +1,8 @@
-use std::fs;
+use std::{env, process, fs};
+
+use tempfile::NamedTempFile;
+
+use crate::errors::RemarkError;
 
 pub enum DataDir {
     Project,
@@ -26,4 +30,19 @@ pub fn get_project_path(dir: DataDir) -> Result<std::path::PathBuf, std::io::Err
     }
 
     Ok(path)
+}
+
+pub(crate) fn launch_editor(file: NamedTempFile) -> Result<String, RemarkError> {
+    let editor = env::var("EDITOR").unwrap_or("vim".to_owned());
+    let status = process::Command::new(editor)
+        .arg(file.path().as_os_str())
+        .status()?;
+
+    if !status.success() {
+        return Err(RemarkError::EditorError);
+    }
+
+    let contents = fs::read_to_string(file.path())?;
+   
+    Ok(contents)
 }

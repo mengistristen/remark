@@ -1,8 +1,8 @@
-use crate::{utils::{get_project_path, DataDir}, ProjectError, data::MdFile};
+use crate::{data::MdFile, errors::RemarkError, utils::{get_project_path, DataDir}};
 
 use super::Project;
 
-pub(crate) fn list_projects() -> Result<(), ProjectError> {
+pub(crate) fn list_projects() -> Result<(), RemarkError> {
     let path = get_project_path(DataDir::Project)?; 
 
     for entry in std::fs::read_dir(path)? {

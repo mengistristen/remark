@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::cli::ProjectCommand;
-use crate::ProjectError;
+use crate::errors::RemarkError;
 
 use self::create::create_project;
 use self::edit::edit_project;
@@ -23,7 +23,7 @@ impl Project {
     }
 }
 
-pub fn process_project(command: ProjectCommand) -> Result<(), ProjectError> {
+pub fn process_project(command: ProjectCommand) -> Result<(), RemarkError> {
     match command {
         ProjectCommand::Create { name } => create_project(name)?,
         ProjectCommand::List => list_projects()?, 

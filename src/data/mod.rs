@@ -1,8 +1,9 @@
 use std::path::PathBuf;
 
+
 use serde::{Deserialize, Serialize};
 
-use crate::ProjectError;
+use crate::errors::RemarkError;
 
 pub(crate) struct MdFile<T>
 where
@@ -20,7 +21,7 @@ where
         Self { metadata, content }
     }
 
-    pub(crate) fn save(&self, path: PathBuf) -> Result<(), ProjectError> {
+    pub(crate) fn save(&self, path: PathBuf) -> Result<(), RemarkError> {
         let frontmatter = serde_yaml::to_string(&self.metadata)?;
         let combined = format!("{}---\n{}", frontmatter, self.content);
 
@@ -29,7 +30,7 @@ where
         Ok(())
     }
 
-    pub(crate) fn from_file(path: PathBuf) -> Result<Self, ProjectError> {
+    pub(crate) fn from_file(path: PathBuf) -> Result<Self, RemarkError> {
         let contents = std::fs::read_to_string(path)?;
 
         if let Some((data, content)) = contents.split_once("---\n") {
@@ -37,7 +38,7 @@ where
 
             Ok(Self::new(metadata, content.to_owned()))
         } else {
-            Err(ProjectError::InvalidFile)
+            Err(RemarkError::InvalidFile)
         }
     }
 }
