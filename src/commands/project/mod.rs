@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-use crate::cli::ProjectCommand;
+use crate::cli::ProjectAction;
 use crate::errors::RemarkError;
 
-use self::create::create_project;
+use self::add::add_project;
 use self::edit::edit_project;
 use self::list::list_projects;
 
-pub mod create;
+pub mod add;
 pub mod list;
 pub mod edit;
 
@@ -23,11 +23,11 @@ impl Project {
     }
 }
 
-pub fn process_project(command: ProjectCommand) -> Result<(), RemarkError> {
-    match command {
-        ProjectCommand::Create { name } => create_project(name)?,
-        ProjectCommand::List => list_projects()?, 
-        ProjectCommand::Edit { id } => edit_project(id)?,
+pub fn process_project(action: ProjectAction) -> Result<(), RemarkError> {
+    match action {
+        ProjectAction::Add { name } => add_project(name)?,
+        ProjectAction::List => list_projects()?, 
+        ProjectAction::Edit { id } => edit_project(id)?,
     };
 
     Ok(())

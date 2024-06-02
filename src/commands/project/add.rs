@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use super::Project;
 
-pub(crate) fn create_project(name: String) -> Result<(), RemarkError> {
+pub(crate) fn add_project(name: String) -> Result<(), RemarkError> {
     let id = Uuid::new_v4();
     let file = NamedTempFile::new()?;
 

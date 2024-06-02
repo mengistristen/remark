@@ -6,6 +6,8 @@ fn main() {
     let cli = Cli::parse();
 
     match cli.command {
-        Command::Project { command } => process_project(command).unwrap(),
+        Command::Project { action } => process_project(action).unwrap(),
+        Command::Task { action: _ }=> todo!(),
+        Command::Report { action: _ } => todo!()
     }
 }

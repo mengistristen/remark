@@ -10,13 +10,35 @@ pub struct Cli {
 pub enum Command {
     Project {
         #[command(subcommand)]
-        command: ProjectCommand,
+        action: ProjectAction,
     },
+    Task {
+        #[command(subcommand)]
+        action: TaskAction,
+    },
+    Report {
+        #[command(subcommand)]
+        action: ReportAction,
+    }
 }
 
 #[derive(Subcommand)]
-pub enum ProjectCommand {
-    Create { name: String },
+pub enum ProjectAction {
+    Add { name: String },
     List,
     Edit { id: String },
+}
+
+#[derive(Subcommand)]
+pub enum TaskAction {
+   Add,
+   List,
+   Edit,
+   Stage, 
+   UnStage
+}
+
+#[derive(Subcommand)]
+pub enum ReportAction {
+    Add
 }
