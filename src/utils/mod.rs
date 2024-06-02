@@ -12,7 +12,7 @@ pub enum DataDir {
 fn get_base_dir() -> std::path::PathBuf {
     let mut data_dir = dirs::data_local_dir().expect("failed to find data directory");
 
-    data_dir.push("renew");
+    data_dir.push("remark");
     fs::create_dir_all(&data_dir).expect("failed to create data directory");
 
     data_dir
