@@ -31,7 +31,7 @@ pub(crate) fn edit_task(mut conn: SqliteConnection, task_id: String) -> Result<(
 
     let mut file = NamedTempFile::new()?;
 
-    file.write(task_file.content.as_bytes())?;
+    file.write_all(task_file.content.as_bytes())?;
 
     let contents = launch_editor(file)?;
 

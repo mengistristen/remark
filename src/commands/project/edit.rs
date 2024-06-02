@@ -35,7 +35,7 @@ pub(crate) fn edit_project(
 
     let mut file = NamedTempFile::new()?;
 
-    file.write(project_file.content.as_bytes())?;
+    file.write_all(project_file.content.as_bytes())?;
 
     let contents = launch_editor(file)?;
 

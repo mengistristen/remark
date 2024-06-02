@@ -50,17 +50,11 @@ pub enum TaskAction {
         staged: bool,
     },
     /// Edit a task
-    Edit {
-        id: String,
-    },
+    Edit { id: String },
     /// Stage a task for being used in a report
-    Stage {
-        id: String,
-    },
+    Stage { id: String },
     /// UnStage a task
-    UnStage {
-        id: String,
-    },
+    UnStage { id: String },
 }
 
 #[derive(Subcommand)]

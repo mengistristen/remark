@@ -13,7 +13,7 @@ fn main() -> Result<(), RemarkError> {
     let database_url = database_url
         .to_str()
         .expect("failed to convert path to string");
-    let conn = SqliteConnection::establish(&database_url)
+    let conn = SqliteConnection::establish(database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
 
     match cli.command {
