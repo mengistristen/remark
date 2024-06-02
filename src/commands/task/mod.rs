@@ -6,11 +6,11 @@ use self::{
     add::add_task, edit::edit_task, list::list_tasks, stage::stage_task, unstage::unstage_task,
 };
 
-pub mod add;
-pub mod edit;
-pub mod list;
-pub mod stage;
-pub mod unstage;
+mod add;
+mod edit;
+mod list;
+mod stage;
+mod unstage;
 
 pub fn process_task(conn: SqliteConnection, action: TaskAction) -> Result<(), RemarkError> {
     match action {

@@ -7,9 +7,9 @@ use self::add::add_project;
 use self::edit::edit_project;
 use self::list::list_projects;
 
-pub mod add;
-pub mod edit;
-pub mod list;
+mod add;
+mod edit;
+mod list;
 
 pub fn process_project(conn: SqliteConnection, action: ProjectAction) -> Result<(), RemarkError> {
     match action {
