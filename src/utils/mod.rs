@@ -1,4 +1,4 @@
-use std::{env, process, fs};
+use std::{env, fs, process};
 
 use tempfile::NamedTempFile;
 
@@ -9,7 +9,7 @@ pub enum DataDir {
     Task,
 }
 
-fn get_base_dir() -> std::path::PathBuf {
+pub fn get_base_dir() -> std::path::PathBuf {
     let mut data_dir = dirs::data_local_dir().expect("failed to find data directory");
 
     data_dir.push("remark");
@@ -18,7 +18,7 @@ fn get_base_dir() -> std::path::PathBuf {
     data_dir
 }
 
-pub fn get_project_path(dir: DataDir) -> Result<std::path::PathBuf, std::io::Error> {
+pub fn get_path(dir: DataDir) -> Result<std::path::PathBuf, std::io::Error> {
     let base_path = get_base_dir();
     let path = match dir {
         DataDir::Project => base_path.join("projects"),
@@ -43,6 +43,6 @@ pub(crate) fn launch_editor(file: NamedTempFile) -> Result<String, RemarkError> 
     }
 
     let contents = fs::read_to_string(file.path())?;
-   
+
     Ok(contents)
 }

@@ -9,8 +9,12 @@ pub enum RemarkError {
     PersistError(#[from] tempfile::PersistError),
     #[error("yaml error")]
     YamlError(#[from] serde_yaml::Error),
+    #[error("database error")]
+    DatabaseError(#[from] diesel::result::Error),
     #[error("editor error")]
     EditorError,
     #[error("invalid file error")]
     InvalidFile,
+    #[error("remark error")]
+    Error(String),
 }
