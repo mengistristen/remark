@@ -31,7 +31,7 @@ pub(crate) fn edit_project(
     let filename = format!("{}.md", project.id);
     let path = get_path(DataDir::Project)?.join(filename);
 
-    let project_file = MdFile::<Project>::from_file(path.clone())?;
+    let project_file = MdFile::<Project>::from_file(&path)?;
 
     let mut file = NamedTempFile::new()?;
 
@@ -41,7 +41,7 @@ pub(crate) fn edit_project(
 
     let new_file = MdFile::new(project, contents);
 
-    new_file.save(path)?;
+    new_file.save(&path)?;
 
     println!("successfully edited project");
 

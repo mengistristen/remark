@@ -27,7 +27,7 @@ pub(crate) fn edit_task(mut conn: SqliteConnection, task_id: String) -> Result<(
     let filename = format!("{}.md", task.id);
     let path = get_path(DataDir::Task)?.join(filename);
 
-    let task_file = MdFile::<Task>::from_file(path.clone())?;
+    let task_file = MdFile::<Task>::from_file(&path)?;
 
     let mut file = NamedTempFile::new()?;
 
@@ -37,7 +37,7 @@ pub(crate) fn edit_task(mut conn: SqliteConnection, task_id: String) -> Result<(
 
     let new_file = MdFile::new(task, contents);
 
-    new_file.save(path)?;
+    new_file.save(&path)?;
 
     println!("successfully edited task");
 

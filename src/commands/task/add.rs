@@ -1,4 +1,5 @@
 use diesel::prelude::*;
+use std::fs;
 use tempfile::NamedTempFile;
 use uuid::Uuid;
 
@@ -52,12 +53,16 @@ pub(crate) fn add_task(
 
     let final_path = get_path(DataDir::Task)?.join(format!("{}.md", task_id));
 
-    md_file.save(final_path)?;
+    md_file.save(&final_path)?;
 
     // save to DB
-    diesel::insert_into(tasks::table)
+    if let Err(err) = diesel::insert_into(tasks::table)
         .values(&task)
-        .execute(&mut conn)?;
+        .execute(&mut conn)
+    {
+        fs::remove_file(final_path)?;
+        return Err(err.into());
+    }
 
     println!("created task '{}'", task_id);
 

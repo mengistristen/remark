@@ -20,7 +20,7 @@ where
         Self { metadata, content }
     }
 
-    pub(crate) fn save(&self, path: PathBuf) -> Result<(), RemarkError> {
+    pub(crate) fn save(&self, path: &PathBuf) -> Result<(), RemarkError> {
         let frontmatter = serde_yaml::to_string(&self.metadata)?;
         let combined = format!("{}---\n{}", frontmatter, self.content);
 
@@ -29,7 +29,7 @@ where
         Ok(())
     }
 
-    pub(crate) fn from_file(path: PathBuf) -> Result<Self, RemarkError> {
+    pub(crate) fn from_file(path: &PathBuf) -> Result<Self, RemarkError> {
         let contents = std::fs::read_to_string(path)?;
 
         if let Some((data, content)) = contents.split_once("---\n") {
