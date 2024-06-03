@@ -9,7 +9,7 @@ pub struct Project {
     pub name: String,
 }
 
-#[derive(Queryable, Selectable, Insertable)]
+#[derive(Queryable, Selectable, Insertable, Debug)]
 #[diesel(table_name = crate::schema::reports)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Report {
