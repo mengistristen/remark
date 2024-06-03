@@ -1,6 +1,19 @@
 [package]
-name = "renew"
+name = "remark"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "lib_remark"
+path = "src/lib.rs"
+
 [dependencies]
+chrono = { version = "0.4.38", features = ["serde"] }
+clap = { version = "4.5.4", features = ["derive"] }
+diesel = { version = "2.2.0", features = ["sqlite", "chrono"] }
+dirs = "5.0.1"
+serde = { version = "1.0.202", features = ["derive"] }
+serde_yaml = "0.9.34"
+tempfile = "3.10.1"
+thiserror = "1.0.61"
+uuid = { version = "1.8.0", features = ["v4"] }
