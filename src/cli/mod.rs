@@ -59,9 +59,14 @@ pub enum TaskAction {
 
 #[derive(Subcommand)]
 pub enum ReportAction {
+    /// Creates a new report
     Generate {
         name: String,
         #[arg(short, long, default_value_t = false)]
         skip_marking: bool,
     },
+    Print {
+        id: String,
+    },
+    List,
 }

@@ -23,7 +23,7 @@ pub(crate) fn generate_report(
         .order(date.desc())
         .load(&mut conn)?;
 
-    if result.len() == 0 {
+    if result.is_empty() {
         return Err(RemarkError::Error(
             "cannot create a report with no tasks".to_owned(),
         ));
