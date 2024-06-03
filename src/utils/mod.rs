@@ -7,6 +7,7 @@ use crate::errors::RemarkError;
 pub enum DataDir {
     Project,
     Task,
+    Report,
 }
 
 pub fn get_base_dir() -> std::path::PathBuf {
@@ -23,6 +24,7 @@ pub fn get_path(dir: DataDir) -> Result<std::path::PathBuf, std::io::Error> {
     let path = match dir {
         DataDir::Project => base_path.join("projects"),
         DataDir::Task => base_path.join("tasks"),
+        DataDir::Report => base_path.join("reports"),
     };
 
     if !path.exists() {

@@ -8,7 +8,7 @@ mod generate;
 
 pub fn process_report(conn: SqliteConnection, action: ReportAction) -> Result<(), RemarkError> {
     match action {
-        ReportAction::Generate { skip_marking } => generate_report(conn, skip_marking)?,
+        ReportAction::Generate { name, skip_marking } => generate_report(conn, name, skip_marking)?,
     };
 
     Ok(())

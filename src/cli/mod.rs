@@ -60,6 +60,7 @@ pub enum TaskAction {
 #[derive(Subcommand)]
 pub enum ReportAction {
     Generate {
+        name: String,
         #[arg(short, long, default_value_t = false)]
         skip_marking: bool,
     },

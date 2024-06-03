@@ -2,6 +2,7 @@ use clap::Parser;
 use diesel::{Connection, SqliteConnection};
 use lib_remark::cli::{Cli, Command};
 use lib_remark::commands::project::process_project;
+use lib_remark::commands::report::process_report;
 use lib_remark::commands::task::process_task;
 use lib_remark::errors::RemarkError;
 use lib_remark::utils::get_base_dir;
@@ -19,7 +20,7 @@ fn main() -> Result<(), RemarkError> {
     match cli.command {
         Command::Project { action } => process_project(conn, action)?,
         Command::Task { action } => process_task(conn, action)?,
-        Command::Report { action: _ } => todo!(),
+        Command::Report { action } => process_report(conn, action)?,
     };
 
     Ok(())
