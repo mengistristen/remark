@@ -28,20 +28,30 @@ pub enum Command {
 #[derive(Subcommand)]
 pub enum ProjectAction {
     /// Create a new project
-    Add { name: String },
+    Add {
+        #[arg(long)]
+        name: String,
+    },
     /// List all projects
     List,
     /// Edit a project
-    Edit { id: String },
+    Edit {
+        #[arg(long)]
+        id: String,
+    },
 }
 
 #[derive(Subcommand)]
 pub enum TaskAction {
     /// Create a new task
     Add {
+        #[arg(long)]
         project: String,
+        #[arg(long)]
         name: String,
+        #[arg(long)]
         hours: f32,
+        #[arg(long)]
         date: Option<chrono::NaiveDate>,
     },
     /// List all tasks
@@ -50,22 +60,33 @@ pub enum TaskAction {
         staged: bool,
     },
     /// Edit a task
-    Edit { id: String },
+    Edit {
+        #[arg(long)]
+        id: String,
+    },
     /// Stage a task for being used in a report
-    Stage { id: String },
+    Stage {
+        #[arg(long)]
+        id: String,
+    },
     /// UnStage a task
-    UnStage { id: String },
+    UnStage {
+        #[arg(long)]
+        id: String,
+    },
 }
 
 #[derive(Subcommand)]
 pub enum ReportAction {
     /// Creates a new report
     Generate {
+        #[arg(long)]
         name: String,
         #[arg(short, long, default_value_t = false)]
         skip_marking: bool,
     },
     Print {
+        #[arg(long)]
         id: String,
     },
     List,
