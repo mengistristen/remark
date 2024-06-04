@@ -1,11 +1,10 @@
-use crate::data::MdFile;
+use crate::commands::report::output_report;
 use crate::models::{Report, Task};
 use crate::schema::reports;
 use crate::schema::tasks::dsl::*;
 use crate::utils::{get_path, DataDir};
 use diesel::prelude::*;
 use std::fs::{self};
-use std::io::Write;
 use uuid::Uuid;
 
 use crate::errors::RemarkError;
@@ -32,29 +31,16 @@ pub(crate) fn generate_report(
     // create the report file in a new scope so that it is closed
     // before the program might try to remove it
     {
-        let mut report_file = fs::File::create_new(path.clone())?;
-        let mut current_date = None;
+        let report_file = fs::File::create_new(path.clone())?;
 
-        writeln!(report_file, "# {report_name}\n")?;
+        output_report(report_file, &result, &report_name)?;
+    }
 
+    if !skip_marking {
         for task in result {
-            if Some(task.date) != current_date {
-                writeln!(report_file, "## {}\n", task.date)?;
-                current_date = Some(task.date);
-            }
-
-            let task_path = get_path(DataDir::Task)?.join(format!("{}.md", task.id));
-            let md_file = MdFile::<Task>::from_file(&task_path)?;
-
-            writeln!(report_file, "### {} ({} hours)\n", task.name, task.hours)?;
-
-            writeln!(report_file, "{}", md_file.content)?;
-
-            if !skip_marking {
-                diesel::update(tasks.find(task.id))
-                    .set(staged.eq(false))
-                    .execute(&mut conn)?;
-            }
+            diesel::update(tasks.find(task.id))
+                .set(staged.eq(false))
+                .execute(&mut conn)?;
         }
     }
 

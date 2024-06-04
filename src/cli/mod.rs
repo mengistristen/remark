@@ -87,7 +87,7 @@ pub enum ReportAction {
     },
     Print {
         #[arg(long)]
-        id: String,
+        id: Option<String>,
     },
     List,
 }
