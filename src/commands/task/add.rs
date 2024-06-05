@@ -20,15 +20,8 @@ pub(crate) fn add_task(
     let file = NamedTempFile::new()?;
 
     let pattern = format!("{}%", project);
-    let mut projects = database::get_projects_like(&mut conn, pattern)?;
 
-    if projects.len() != 1 {
-        return Err(RemarkError::Error(
-            "found more than one item with ID beginning with {}".to_owned(),
-        ));
-    }
-
-    let project = projects.remove(0);
+    let project = database::get_project_like(&mut conn, &pattern)?;
     let task_date = match date {
         Some(date) => date,
         None => chrono::Local::now().naive_local().into(),

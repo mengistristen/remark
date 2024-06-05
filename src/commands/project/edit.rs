@@ -15,16 +15,8 @@ pub(crate) fn edit_project(
     project_id: String,
 ) -> Result<(), RemarkError> {
     let pattern = format!("{}%", project_id);
-    let mut projects = database::get_projects_like(&mut conn, pattern)?;
+    let project = database::get_project_like(&mut conn, &pattern)?;
 
-    if projects.len() != 1 {
-        return Err(RemarkError::Error(format!(
-            "found more than one item with ID beginning with {}",
-            project_id
-        )));
-    }
-
-    let project = projects.remove(0);
     let filename = format!("{}.md", project.id);
     let path = get_path(DataDir::Project)?.join(filename);
 

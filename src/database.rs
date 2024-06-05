@@ -17,9 +17,30 @@ pub(crate) fn insert_project(
     Ok(())
 }
 
+pub(crate) fn get_project_like(
+    conn: &mut SqliteConnection,
+    pattern: &String,
+) -> Result<Project, RemarkError> {
+    let mut projects = get_projects_like(conn, pattern)?;
+
+    if projects.is_empty() {
+        return Err(RemarkError::Error(format!(
+            "failed to find a project matching pattern '{pattern}'"
+        )));
+    }
+
+    if projects.len() != 1 {
+        return Err(RemarkError::Error(format!(
+            "found more than one project matching pattern '{pattern}'"
+        )));
+    }
+
+    Ok(projects.remove(0))
+}
+
 pub(crate) fn get_projects_like(
     conn: &mut SqliteConnection,
-    pattern: String,
+    pattern: &String,
 ) -> Result<Vec<Project>, RemarkError> {
     let result = projects_dsl::projects
         .filter(projects_dsl::id.like(pattern))
@@ -45,9 +66,30 @@ pub(crate) fn insert_task(conn: &mut SqliteConnection, task: &Task) -> Result<()
     Ok(())
 }
 
+pub(crate) fn get_task_like(
+    conn: &mut SqliteConnection,
+    pattern: &String,
+) -> Result<Task, RemarkError> {
+    let mut tasks = get_tasks_like(conn, pattern)?;
+
+    if tasks.is_empty() {
+        return Err(RemarkError::Error(format!(
+            "failed to find a task matching pattern '{pattern}'"
+        )));
+    }
+
+    if tasks.len() != 1 {
+        return Err(RemarkError::Error(format!(
+            "found more than one task matching pattern '{pattern}'"
+        )));
+    }
+
+    Ok(tasks.remove(0))
+}
+
 pub(crate) fn get_tasks_like(
     conn: &mut SqliteConnection,
-    pattern: String,
+    pattern: &String,
 ) -> Result<Vec<Task>, RemarkError> {
     let result = tasks_dsl::tasks
         .filter(tasks_dsl::id.like(pattern))
@@ -99,9 +141,30 @@ pub(crate) fn insert_report(
     Ok(())
 }
 
+pub(crate) fn get_report_like(
+    conn: &mut SqliteConnection,
+    pattern: &String,
+) -> Result<Report, RemarkError> {
+    let mut reports = get_reports_like(conn, pattern)?;
+
+    if reports.is_empty() {
+        return Err(RemarkError::Error(format!(
+            "failed to find a report matching pattern '{pattern}'"
+        )));
+    }
+
+    if reports.len() != 1 {
+        return Err(RemarkError::Error(format!(
+            "found more than one report matching pattern '{pattern}'"
+        )));
+    }
+
+    Ok(reports.remove(0))
+}
+
 pub(crate) fn get_reports_like(
     conn: &mut SqliteConnection,
-    pattern: String,
+    pattern: &String,
 ) -> Result<Vec<Report>, RemarkError> {
     let result = reports_dsl::reports
         .filter(reports_dsl::id.like(pattern))

@@ -16,16 +16,8 @@ pub(crate) fn print_report(
 ) -> Result<(), RemarkError> {
     if let Some(id) = id {
         let pattern = format!("{}%", id);
-        let mut reports = database::get_reports_like(&mut conn, pattern)?;
 
-        if reports.len() != 1 {
-            return Err(RemarkError::Error(format!(
-                "found more than one item with ID beginning with {}",
-                id
-            )));
-        }
-
-        let report = reports.remove(0);
+        let report = database::get_report_like(&mut conn, &pattern)?;
         let report_path = get_path(DataDir::Report)?.join(format!("{}.md", report.id));
         let mut file = File::open(report_path)?;
         let mut contents = String::new();
