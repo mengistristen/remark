@@ -1,13 +1,12 @@
-use diesel::prelude::*;
+use diesel::SqliteConnection;
 use std::fs;
 use tempfile::NamedTempFile;
 use uuid::Uuid;
 
 use crate::data::MdFile;
+use crate::database;
 use crate::errors::RemarkError;
-use crate::models::{Project, Task};
-use crate::schema::projects::dsl::*;
-use crate::schema::tasks;
+use crate::models::Task;
 use crate::utils::{get_path, launch_editor, DataDir};
 
 pub(crate) fn add_task(
@@ -21,18 +20,15 @@ pub(crate) fn add_task(
     let file = NamedTempFile::new()?;
 
     let pattern = format!("{}%", project);
-    let mut result = projects
-        .filter(id.like(pattern))
-        .select(Project::as_select())
-        .load(&mut conn)?;
+    let mut projects = database::get_projects_like(&mut conn, pattern)?;
 
-    if result.len() != 1 {
+    if projects.len() != 1 {
         return Err(RemarkError::Error(
             "found more than one item with ID beginning with {}".to_owned(),
         ));
     }
 
-    let project = result.remove(0);
+    let project = projects.remove(0);
     let task_date = match date {
         Some(date) => date,
         None => chrono::Local::now().naive_local().into(),
@@ -56,12 +52,9 @@ pub(crate) fn add_task(
     md_file.save(&final_path)?;
 
     // save to DB
-    if let Err(err) = diesel::insert_into(tasks::table)
-        .values(&task)
-        .execute(&mut conn)
-    {
+    if let Err(err) = database::insert_task(&mut conn, &task) {
         fs::remove_file(final_path)?;
-        return Err(err.into());
+        return Err(err);
     }
 
     println!("created task '{}'", task_id);

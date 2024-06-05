@@ -1,9 +1,9 @@
 use crate::data::MdFile;
+use crate::database;
 use crate::errors::RemarkError;
 use crate::models::Project;
-use crate::schema::projects;
 use crate::utils::{get_path, launch_editor, DataDir};
-use diesel::prelude::*;
+use diesel::SqliteConnection;
 use std::fs;
 use tempfile::NamedTempFile;
 use uuid::Uuid;
@@ -26,12 +26,9 @@ pub(crate) fn add_project(mut conn: SqliteConnection, name: String) -> Result<()
     md_file.save(&final_path)?;
 
     // save to DB
-    if let Err(err) = diesel::insert_into(projects::table)
-        .values(&project)
-        .execute(&mut conn)
-    {
+    if let Err(err) = database::insert_project(&mut conn, &project) {
         fs::remove_file(final_path)?;
-        return Err(err.into());
+        return Err(err);
     }
 
     println!("created project '{}'", id);

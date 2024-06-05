@@ -1,13 +1,13 @@
 use std::io::Write;
 
-use crate::schema::projects::dsl::*;
 use crate::{
     data::MdFile,
+    database,
     errors::RemarkError,
     models::Project,
     utils::{get_path, launch_editor, DataDir},
 };
-use diesel::prelude::*;
+use diesel::SqliteConnection;
 use tempfile::NamedTempFile;
 
 pub(crate) fn edit_project(
@@ -15,19 +15,16 @@ pub(crate) fn edit_project(
     project_id: String,
 ) -> Result<(), RemarkError> {
     let pattern = format!("{}%", project_id);
-    let mut result = projects
-        .filter(id.like(pattern))
-        .select(Project::as_select())
-        .load(&mut conn)?;
+    let mut projects = database::get_projects_like(&mut conn, pattern)?;
 
-    if result.len() != 1 {
+    if projects.len() != 1 {
         return Err(RemarkError::Error(format!(
             "found more than one item with ID beginning with {}",
             project_id
         )));
     }
 
-    let project = result.remove(0);
+    let project = projects.remove(0);
     let filename = format!("{}.md", project.id);
     let path = get_path(DataDir::Project)?.join(filename);
 

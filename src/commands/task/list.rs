@@ -1,23 +1,16 @@
-use crate::models::Task;
-use crate::schema::tasks::dsl::*;
-use diesel::prelude::*;
+use diesel::SqliteConnection;
+
+use crate::database;
 
 use crate::errors::RemarkError;
 
-pub(crate) fn list_tasks(mut conn: SqliteConnection, task_staged: bool) -> Result<(), RemarkError> {
-    let result = match task_staged {
-        true => tasks
-            .select(Task::as_select())
-            .filter(staged.eq(true))
-            .order(date.desc())
-            .load(&mut conn)?,
-        false => tasks
-            .select(Task::as_select())
-            .order(date.desc())
-            .load(&mut conn)?,
+pub(crate) fn list_tasks(mut conn: SqliteConnection, staged: bool) -> Result<(), RemarkError> {
+    let tasks = match staged {
+        true => database::get_staged_tasks(&mut conn)?,
+        false => database::get_all_tasks(&mut conn)?,
     };
 
-    for task in result {
+    for task in tasks {
         println!("{} {} {}", task.id, task.date, task.name);
     }
 

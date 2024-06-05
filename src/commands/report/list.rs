@@ -1,12 +1,13 @@
-use crate::schema::reports::dsl::*;
-use diesel::prelude::*;
+use diesel::SqliteConnection;
 
-use crate::{errors::RemarkError, models::Report};
+use crate::database;
+
+use crate::errors::RemarkError;
 
 pub(crate) fn list_reports(mut conn: SqliteConnection) -> Result<(), RemarkError> {
-    let result = reports.select(Report::as_select()).load(&mut conn)?;
+    let reports = database::get_all_reports(&mut conn)?;
 
-    for report in result {
+    for report in reports {
         println!("{} {}", report.id, report.name);
     }
 

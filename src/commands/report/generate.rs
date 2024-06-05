@@ -1,10 +1,9 @@
 use crate::commands::report::output_report;
-use crate::models::{Report, Task};
-use crate::schema::reports;
-use crate::schema::tasks::dsl::*;
+use crate::database;
+use crate::models::Report;
 use crate::utils::{get_path, DataDir};
-use diesel::prelude::*;
-use std::fs::{self};
+use diesel::SqliteConnection;
+use std::fs;
 use uuid::Uuid;
 
 use crate::errors::RemarkError;
@@ -16,13 +15,9 @@ pub(crate) fn generate_report(
 ) -> Result<(), RemarkError> {
     let report_id = Uuid::new_v4();
     let path = get_path(DataDir::Report)?.join(format!("{}.md", report_id));
-    let result = tasks
-        .select(Task::as_select())
-        .filter(staged.eq(true))
-        .order(date.desc())
-        .load(&mut conn)?;
+    let tasks = database::get_staged_tasks(&mut conn)?;
 
-    if result.is_empty() {
+    if tasks.is_empty() {
         return Err(RemarkError::Error(
             "cannot create a report with no tasks".to_owned(),
         ));
@@ -33,14 +28,12 @@ pub(crate) fn generate_report(
     {
         let report_file = fs::File::create_new(path.clone())?;
 
-        output_report(report_file, &result, &report_name)?;
+        output_report(report_file, &tasks, &report_name)?;
     }
 
     if !skip_marking {
-        for task in result {
-            diesel::update(tasks.find(task.id))
-                .set(staged.eq(false))
-                .execute(&mut conn)?;
+        for task in tasks {
+            database::mark_task(&mut conn, task.id, true)?;
         }
     }
 
@@ -49,12 +42,9 @@ pub(crate) fn generate_report(
         name: report_name,
     };
 
-    if let Err(err) = diesel::insert_into(reports::table)
-        .values(report)
-        .execute(&mut conn)
-    {
+    if let Err(err) = database::insert_report(&mut conn, &report) {
         fs::remove_file(path)?;
-        return Err(err.into());
+        return Err(err);
     }
 
     println!("generated report '{}'", report_id);
