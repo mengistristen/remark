@@ -39,6 +39,11 @@ pub enum ProjectAction {
         #[arg(long)]
         id: String,
     },
+    /// Remove a project
+    Remove {
+        #[arg(long)]
+        id: String,
+    },
 }
 
 #[derive(Subcommand)]
@@ -71,6 +76,11 @@ pub enum TaskAction {
     },
     /// UnStage a task
     UnStage {
+        #[arg(long)]
+        id: String,
+    },
+    /// Remove a task
+    Remove {
         #[arg(long)]
         id: String,
     },

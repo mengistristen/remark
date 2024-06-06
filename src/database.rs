@@ -17,6 +17,12 @@ pub(crate) fn insert_project(
     Ok(())
 }
 
+pub(crate) fn remove_project(conn: &mut SqliteConnection, id: &String) -> Result<(), RemarkError> {
+    diesel::delete(projects_dsl::projects.filter(projects_dsl::id.eq(id))).execute(conn)?;
+
+    Ok(())
+}
+
 pub(crate) fn get_project_like(
     conn: &mut SqliteConnection,
     begins_with: &String,
@@ -63,6 +69,21 @@ pub(crate) fn insert_task(conn: &mut SqliteConnection, task: &Task) -> Result<()
     diesel::insert_into(tasks::table)
         .values(task)
         .execute(conn)?;
+
+    Ok(())
+}
+
+pub(crate) fn remove_task(conn: &mut SqliteConnection, id: &String) -> Result<(), RemarkError> {
+    diesel::delete(tasks_dsl::tasks.filter(tasks_dsl::id.eq(id))).execute(conn)?;
+
+    Ok(())
+}
+
+pub(crate) fn remove_tasks_for_project(
+    conn: &mut SqliteConnection,
+    project_id: &String,
+) -> Result<(), RemarkError> {
+    diesel::delete(tasks_dsl::tasks.filter(tasks_dsl::project_id.eq(project_id))).execute(conn)?;
 
     Ok(())
 }
