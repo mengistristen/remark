@@ -27,6 +27,7 @@ pub(crate) fn output_report<T: Write>(
 
     for task in tasks {
         if Some(task.date) != current_date {
+            writeln!(writer, "---\n")?;
             writeln!(writer, "## {}\n", task.date.format("%A, %-d %B, %C%y"))?;
             current_date = Some(task.date);
         }
