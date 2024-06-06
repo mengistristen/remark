@@ -15,9 +15,7 @@ pub(crate) fn print_report(
     id: Option<String>,
 ) -> Result<(), RemarkError> {
     if let Some(id) = id {
-        let pattern = format!("{}%", id);
-
-        let report = database::get_report_like(&mut conn, &pattern)?;
+        let report = database::get_report_like(&mut conn, &id)?;
         let report_path = get_path(DataDir::Report)?.join(format!("{}.md", report.id));
         let mut file = File::open(report_path)?;
         let mut contents = String::new();

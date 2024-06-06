@@ -10,12 +10,8 @@ use crate::{
 use diesel::SqliteConnection;
 use tempfile::NamedTempFile;
 
-pub(crate) fn edit_project(
-    mut conn: SqliteConnection,
-    project_id: String,
-) -> Result<(), RemarkError> {
-    let pattern = format!("{}%", project_id);
-    let project = database::get_project_like(&mut conn, &pattern)?;
+pub(crate) fn edit_project(mut conn: SqliteConnection, id: String) -> Result<(), RemarkError> {
+    let project = database::get_project_like(&mut conn, &id)?;
 
     let filename = format!("{}.md", project.id);
     let path = get_path(DataDir::Project)?.join(filename);

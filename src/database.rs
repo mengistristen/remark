@@ -19,19 +19,19 @@ pub(crate) fn insert_project(
 
 pub(crate) fn get_project_like(
     conn: &mut SqliteConnection,
-    pattern: &String,
+    begins_with: &String,
 ) -> Result<Project, RemarkError> {
-    let mut projects = get_projects_like(conn, pattern)?;
+    let mut projects = get_projects_like(conn, begins_with)?;
 
     if projects.is_empty() {
         return Err(RemarkError::Error(format!(
-            "failed to find a project matching pattern '{pattern}'"
+            "failed to find a project beginning with '{begins_with}'"
         )));
     }
 
     if projects.len() != 1 {
         return Err(RemarkError::Error(format!(
-            "found more than one project matching pattern '{pattern}'"
+            "found more than one project beginning with '{begins_with}'"
         )));
     }
 
@@ -40,8 +40,9 @@ pub(crate) fn get_project_like(
 
 pub(crate) fn get_projects_like(
     conn: &mut SqliteConnection,
-    pattern: &String,
+    begins_with: &String,
 ) -> Result<Vec<Project>, RemarkError> {
+    let pattern = format!("{}%", begins_with);
     let result = projects_dsl::projects
         .filter(projects_dsl::id.like(pattern))
         .select(Project::as_select())
@@ -68,19 +69,19 @@ pub(crate) fn insert_task(conn: &mut SqliteConnection, task: &Task) -> Result<()
 
 pub(crate) fn get_task_like(
     conn: &mut SqliteConnection,
-    pattern: &String,
+    begins_with: &String,
 ) -> Result<Task, RemarkError> {
-    let mut tasks = get_tasks_like(conn, pattern)?;
+    let mut tasks = get_tasks_like(conn, begins_with)?;
 
     if tasks.is_empty() {
         return Err(RemarkError::Error(format!(
-            "failed to find a task matching pattern '{pattern}'"
+            "failed to find a task beginning with '{begins_with}'"
         )));
     }
 
     if tasks.len() != 1 {
         return Err(RemarkError::Error(format!(
-            "found more than one task matching pattern '{pattern}'"
+            "found more than one task beginning with '{begins_with}'"
         )));
     }
 
@@ -89,8 +90,9 @@ pub(crate) fn get_task_like(
 
 pub(crate) fn get_tasks_like(
     conn: &mut SqliteConnection,
-    pattern: &String,
+    begins_with: &String,
 ) -> Result<Vec<Task>, RemarkError> {
+    let pattern = format!("{}%", begins_with);
     let result = tasks_dsl::tasks
         .filter(tasks_dsl::id.like(pattern))
         .select(Task::as_select())
@@ -143,19 +145,19 @@ pub(crate) fn insert_report(
 
 pub(crate) fn get_report_like(
     conn: &mut SqliteConnection,
-    pattern: &String,
+    begins_with: &String,
 ) -> Result<Report, RemarkError> {
-    let mut reports = get_reports_like(conn, pattern)?;
+    let mut reports = get_reports_like(conn, begins_with)?;
 
     if reports.is_empty() {
         return Err(RemarkError::Error(format!(
-            "failed to find a report matching pattern '{pattern}'"
+            "failed to find a report beginning with '{begins_with}'"
         )));
     }
 
     if reports.len() != 1 {
         return Err(RemarkError::Error(format!(
-            "found more than one report matching pattern '{pattern}'"
+            "found more than one report beginning with '{begins_with}'"
         )));
     }
 
@@ -164,8 +166,9 @@ pub(crate) fn get_report_like(
 
 pub(crate) fn get_reports_like(
     conn: &mut SqliteConnection,
-    pattern: &String,
+    begins_with: &String,
 ) -> Result<Vec<Report>, RemarkError> {
+    let pattern = format!("{}%", begins_with);
     let result = reports_dsl::reports
         .filter(reports_dsl::id.like(pattern))
         .select(Report::as_select())

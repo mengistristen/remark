@@ -19,9 +19,7 @@ pub(crate) fn add_task(
     let task_id = Uuid::new_v4();
     let file = NamedTempFile::new()?;
 
-    let pattern = format!("{}%", project);
-
-    let project = database::get_project_like(&mut conn, &pattern)?;
+    let project = database::get_project_like(&mut conn, &project)?;
     let task_date = match date {
         Some(date) => date,
         None => chrono::Local::now().naive_local().into(),

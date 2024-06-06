@@ -9,9 +9,8 @@ use tempfile::NamedTempFile;
 use crate::errors::RemarkError;
 use crate::utils::{get_path, launch_editor, DataDir};
 
-pub(crate) fn edit_task(mut conn: SqliteConnection, task_id: String) -> Result<(), RemarkError> {
-    let pattern = format!("{}%", task_id);
-    let task = database::get_task_like(&mut conn, &pattern)?;
+pub(crate) fn edit_task(mut conn: SqliteConnection, id: String) -> Result<(), RemarkError> {
+    let task = database::get_task_like(&mut conn, &id)?;
 
     let filename = format!("{}.md", task.id);
     let path = get_path(DataDir::Task)?.join(filename);
