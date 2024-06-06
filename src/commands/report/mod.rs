@@ -34,7 +34,13 @@ pub(crate) fn output_report<T: Write>(
         let task_path = get_path(DataDir::Task)?.join(format!("{}.md", task.id));
         let md_file = MdFile::<Task>::from_file(&task_path)?;
 
-        writeln!(writer, "### {} ({} hours)\n", task.name, task.hours)?;
+        writeln!(
+            writer,
+            "### {} ({} {})\n",
+            task.name,
+            task.hours,
+            if task.hours == 1.0 { "hour" } else { "hours" }
+        )?;
 
         writeln!(writer, "{}", md_file.content)?;
     }
