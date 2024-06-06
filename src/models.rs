@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use diesel::{deserialize::Queryable, prelude::Insertable, Selectable};
 use serde::{Deserialize, Serialize};
 
@@ -7,6 +9,19 @@ use serde::{Deserialize, Serialize};
 pub struct Project {
     pub id: String,
     pub name: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct UpdateProject<'a> {
+    pub name: Cow<'a, String>,
+}
+
+impl<'a> UpdateProject<'a> {
+    pub fn from_project(project: &'a Project) -> Self {
+        Self {
+            name: Cow::Borrowed(&project.name),
+        }
+    }
 }
 
 #[derive(Queryable, Selectable, Insertable, Debug)]
@@ -27,4 +42,23 @@ pub struct Task {
     pub date: chrono::NaiveDate,
     pub staged: bool,
     pub project_id: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct UpdateTask<'a> {
+    pub name: Cow<'a, String>,
+    pub hours: Cow<'a, f32>,
+    pub date: Cow<'a, chrono::NaiveDate>,
+    pub staged: Cow<'a, bool>,
+}
+
+impl<'a> UpdateTask<'a> {
+    pub fn from_task(task: &'a Task) -> Self {
+        Self {
+            name: Cow::Borrowed(&task.name),
+            hours: Cow::Borrowed(&task.hours),
+            date: Cow::Borrowed(&task.date),
+            staged: Cow::Borrowed(&task.staged),
+        }
+    }
 }

@@ -4,13 +4,17 @@ use crate::{
     data::MdFile,
     database,
     errors::RemarkError,
-    models::Project,
+    models::{Project, UpdateProject},
     utils::{get_path, launch_editor, DataDir},
 };
 use diesel::SqliteConnection;
 use tempfile::NamedTempFile;
 
-pub(crate) fn edit_project(mut conn: SqliteConnection, id: String) -> Result<(), RemarkError> {
+pub(crate) fn edit_project(
+    mut conn: SqliteConnection,
+    id: String,
+    metadata: bool,
+) -> Result<(), RemarkError> {
     let project = database::get_project_like(&mut conn, &id)?;
 
     let filename = format!("{}.md", project.id);
@@ -20,13 +24,29 @@ pub(crate) fn edit_project(mut conn: SqliteConnection, id: String) -> Result<(),
 
     let mut file = NamedTempFile::new()?;
 
-    file.write_all(project_file.content.as_bytes())?;
+    if metadata {
+        let update = UpdateProject::from_project(&project_file.metadata);
+        let metadata_str = serde_yaml::to_string(&update)?;
+
+        file.write_all(metadata_str.as_bytes())?;
+    } else {
+        file.write_all(project_file.content.as_bytes())?;
+    }
 
     let contents = launch_editor(file)?;
 
-    let new_file = MdFile::new(project, contents);
+    if metadata {
+        let deserialized = serde_yaml::from_str(contents.as_str())?;
+        let new_project = database::update_project(&mut conn, project.id, &deserialized)?;
 
-    new_file.save(&path)?;
+        let new_file = MdFile::new(new_project, project_file.content);
+
+        new_file.save(&path)?;
+    } else {
+        let new_file = MdFile::new(project, contents);
+
+        new_file.save(&path)?;
+    }
 
     println!("successfully edited project");
 

@@ -17,7 +17,7 @@ pub fn process_project(conn: SqliteConnection, action: ProjectAction) -> Result<
     match action {
         ProjectAction::Add { name } => add_project(conn, name)?,
         ProjectAction::List => list_projects(conn)?,
-        ProjectAction::Edit { id } => edit_project(conn, id)?,
+        ProjectAction::Edit { id, metadata } => edit_project(conn, id, metadata)?,
         ProjectAction::Remove { id } => remove_project(conn, id)?,
     };
 

@@ -38,6 +38,8 @@ pub enum ProjectAction {
     Edit {
         #[arg(long)]
         id: String,
+        #[arg(short, long, default_value_t = false)]
+        metadata: bool,
     },
     /// Remove a project
     Remove {
@@ -68,6 +70,8 @@ pub enum TaskAction {
     Edit {
         #[arg(long)]
         id: String,
+        #[arg(short, long, default_value_t = false)]
+        metadata: bool,
     },
     /// Stage a task for being used in a report
     Stage {

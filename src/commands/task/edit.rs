@@ -2,14 +2,18 @@ use std::io::Write;
 
 use crate::data::MdFile;
 use crate::database;
-use crate::models::Task;
+use crate::models::{Task, UpdateTask};
 use diesel::SqliteConnection;
 use tempfile::NamedTempFile;
 
 use crate::errors::RemarkError;
 use crate::utils::{get_path, launch_editor, DataDir};
 
-pub(crate) fn edit_task(mut conn: SqliteConnection, id: String) -> Result<(), RemarkError> {
+pub(crate) fn edit_task(
+    mut conn: SqliteConnection,
+    id: String,
+    metadata: bool,
+) -> Result<(), RemarkError> {
     let task = database::get_task_like(&mut conn, &id)?;
 
     let filename = format!("{}.md", task.id);
@@ -19,13 +23,29 @@ pub(crate) fn edit_task(mut conn: SqliteConnection, id: String) -> Result<(), Re
 
     let mut file = NamedTempFile::new()?;
 
-    file.write_all(task_file.content.as_bytes())?;
+    if metadata {
+        let update = UpdateTask::from_task(&task);
+        let metadata_str = serde_yaml::to_string(&update)?;
+
+        file.write_all(metadata_str.as_bytes())?;
+    } else {
+        file.write_all(task_file.content.as_bytes())?;
+    }
 
     let contents = launch_editor(file)?;
 
-    let new_file = MdFile::new(task, contents);
+    if metadata {
+        let deserialized = serde_yaml::from_str(contents.as_str())?;
+        let new_task = database::update_task(&mut conn, task.id, &deserialized)?;
 
-    new_file.save(&path)?;
+        let new_file = MdFile::new(new_task, task_file.content);
+
+        new_file.save(&path)?;
+    } else {
+        let new_file = MdFile::new(task, contents);
+
+        new_file.save(&path)?;
+    }
 
     println!("successfully edited task");
 

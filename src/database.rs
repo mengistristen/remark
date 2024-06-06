@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 
 use crate::errors::RemarkError;
-use crate::models::{Project, Report, Task};
+use crate::models::{Project, Report, Task, UpdateProject, UpdateTask};
 use crate::schema::projects::{self, dsl as projects_dsl};
 use crate::schema::reports::{self, dsl as reports_dsl};
 use crate::schema::tasks::{self, dsl as tasks_dsl};
@@ -15,6 +15,20 @@ pub(crate) fn insert_project(
         .execute(conn)?;
 
     Ok(())
+}
+
+pub(crate) fn update_project(
+    conn: &mut SqliteConnection,
+    id: String,
+    project: &UpdateProject,
+) -> Result<Project, RemarkError> {
+    diesel::update(projects_dsl::projects.filter(projects_dsl::id.eq(&id)))
+        .set(projects_dsl::name.eq(&project.name))
+        .execute(conn)?;
+
+    let project = get_project_like(conn, &id)?;
+
+    Ok(project)
 }
 
 pub(crate) fn remove_project(conn: &mut SqliteConnection, id: &String) -> Result<(), RemarkError> {
@@ -71,6 +85,25 @@ pub(crate) fn insert_task(conn: &mut SqliteConnection, task: &Task) -> Result<()
         .execute(conn)?;
 
     Ok(())
+}
+
+pub(crate) fn update_task(
+    conn: &mut SqliteConnection,
+    id: String,
+    task: &UpdateTask,
+) -> Result<Task, RemarkError> {
+    diesel::update(tasks_dsl::tasks.filter(tasks_dsl::id.eq(&id)))
+        .set((
+            tasks_dsl::name.eq(&task.name),
+            tasks_dsl::hours.eq(&task.hours),
+            tasks_dsl::date.eq(&task.date),
+            tasks_dsl::staged.eq(&task.staged),
+        ))
+        .execute(conn)?;
+
+    let task = get_task_like(conn, &id)?;
+
+    Ok(task)
 }
 
 pub(crate) fn remove_task(conn: &mut SqliteConnection, id: &String) -> Result<(), RemarkError> {
