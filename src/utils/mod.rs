@@ -1,4 +1,5 @@
-use std::{env, fs, process};
+use std::io::Write;
+use std::{env, fs, io, process, str::FromStr};
 
 use tempfile::NamedTempFile;
 
@@ -47,4 +48,17 @@ pub(crate) fn launch_editor(file: NamedTempFile) -> Result<String, RemarkError> 
     let contents = fs::read_to_string(file.path())?;
 
     Ok(contents)
+}
+
+pub(crate) fn prompt_user<T: FromStr>(prompt: &str) -> Result<T, RemarkError> {
+    print!("{prompt}: ");
+    io::stdout().flush()?;
+
+    let mut input = String::new();
+    let _ = io::stdin().read_line(&mut input);
+
+    let converted = T::from_str(input.trim())
+        .map_err(|_| RemarkError::Error("error converting from string".to_owned()))?;
+
+    Ok(converted)
 }

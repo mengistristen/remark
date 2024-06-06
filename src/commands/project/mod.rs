@@ -15,7 +15,7 @@ mod remove;
 
 pub fn process_project(conn: SqliteConnection, action: ProjectAction) -> Result<(), RemarkError> {
     match action {
-        ProjectAction::Add { name } => add_project(conn, name)?,
+        ProjectAction::Add => add_project(conn)?,
         ProjectAction::List => list_projects(conn)?,
         ProjectAction::Edit { id, metadata } => edit_project(conn, id, metadata)?,
         ProjectAction::Remove { id } => remove_project(conn, id)?,

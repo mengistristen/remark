@@ -28,10 +28,7 @@ pub enum Command {
 #[derive(Subcommand)]
 pub enum ProjectAction {
     /// Create a new project
-    Add {
-        #[arg(long)]
-        name: String,
-    },
+    Add,
     /// List all projects
     List,
     /// Edit a project
@@ -54,12 +51,6 @@ pub enum TaskAction {
     Add {
         #[arg(long)]
         project: String,
-        #[arg(long)]
-        name: String,
-        #[arg(long)]
-        hours: f32,
-        #[arg(long)]
-        date: Option<chrono::NaiveDate>,
     },
     /// List all tasks
     List {
