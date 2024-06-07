@@ -6,7 +6,7 @@ use crate::{
     cli::ReportAction,
     data::MdFile,
     errors::RemarkError,
-    models::Task,
+    models::{Project, Task},
     utils::{get_path, DataDir},
 };
 
@@ -23,14 +23,14 @@ mod remove;
 
 pub(crate) fn output_report<T: Write>(
     mut writer: T,
-    tasks: &Vec<Task>,
+    task_project_pairs: &Vec<(Task, Project)>,
     report_name: &String,
 ) -> Result<(), RemarkError> {
     let mut current_date = None;
 
     writeln!(writer, "# {report_name}\n")?;
 
-    for task in tasks {
+    for (task, project) in task_project_pairs {
         if Some(task.date) != current_date {
             writeln!(writer, "---\n")?;
             writeln!(writer, "## {}\n", task.date.format("%A, %-d %B, %C%y"))?;
@@ -42,7 +42,8 @@ pub(crate) fn output_report<T: Write>(
 
         writeln!(
             writer,
-            "### {} ({} {})\n",
+            "### {} | {} ({} {})\n",
+            project.name,
             task.name,
             task.hours,
             if task.hours == 1.0 { "hour" } else { "hours" }

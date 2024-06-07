@@ -11,10 +11,13 @@ pub(crate) fn list_tasks(
     to: Option<chrono::NaiveDate>,
 ) -> Result<(), RemarkError> {
     let to = get_default_date(to);
-    let tasks = database::get_tasks_in_range(&mut conn, from, to)?;
+    let results = database::get_tasks_in_range(&mut conn, from, to)?;
 
-    for task in tasks {
-        println!("{} {} {}", task.id, task.date, task.name);
+    for (task, project) in results {
+        println!(
+            "{} {:30} {} {}",
+            task.id, project.name, task.date, task.name
+        );
     }
 
     Ok(())

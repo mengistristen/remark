@@ -158,15 +158,16 @@ pub(crate) fn get_tasks_in_range(
     conn: &mut SqliteConnection,
     from: chrono::NaiveDate,
     to: chrono::NaiveDate,
-) -> Result<Vec<Task>, RemarkError> {
-    let result = tasks_dsl::tasks
-        .select(Task::as_select())
+) -> Result<Vec<(Task, Project)>, RemarkError> {
+    let tasks_with_projects = tasks::table
+        .inner_join(projects::table)
         .filter(tasks_dsl::date.ge(from))
         .filter(tasks_dsl::date.le(to))
         .order(tasks_dsl::date.desc())
-        .load(conn)?;
+        .select((Task::as_select(), Project::as_select()))
+        .load::<(Task, Project)>(conn)?;
 
-    Ok(result)
+    Ok(tasks_with_projects)
 }
 
 pub(crate) fn insert_report(

@@ -1,9 +1,14 @@
 use std::borrow::Cow;
 
-use diesel::{deserialize::Queryable, prelude::Insertable, Selectable};
+use diesel::{
+    associations::{Associations, Identifiable},
+    deserialize::Queryable,
+    prelude::Insertable,
+    Selectable,
+};
 use serde::{Deserialize, Serialize};
 
-#[derive(Queryable, Selectable, Insertable, Serialize, Deserialize, Debug, Clone)]
+#[derive(Queryable, Selectable, Insertable, Identifiable, Serialize, Deserialize, Debug, Clone)]
 #[diesel(table_name = crate::schema::projects)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Project {
@@ -32,8 +37,19 @@ pub struct Report {
     pub name: String,
 }
 
-#[derive(Queryable, Selectable, Insertable, Serialize, Deserialize, Debug, Clone)]
+#[derive(
+    Queryable,
+    Selectable,
+    Insertable,
+    Associations,
+    Identifiable,
+    Serialize,
+    Deserialize,
+    Debug,
+    Clone,
+)]
 #[diesel(table_name = crate::schema::tasks)]
+#[diesel(belongs_to(Project, foreign_key = project_id))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Task {
     pub id: String,
