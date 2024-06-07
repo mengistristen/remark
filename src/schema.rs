@@ -18,7 +18,6 @@ diesel::table! {
     tasks (id) {
         id -> Text,
         name -> Text,
-        staged -> Bool,
         hours -> Float,
         date -> Date,
         project_id -> Text,
