@@ -180,6 +180,12 @@ pub(crate) fn insert_report(
     Ok(())
 }
 
+pub(crate) fn remove_report(conn: &mut SqliteConnection, id: &String) -> Result<(), RemarkError> {
+    diesel::delete(reports_dsl::reports.filter(reports_dsl::id.eq(id))).execute(conn)?;
+
+    Ok(())
+}
+
 pub(crate) fn get_report_like(
     conn: &mut SqliteConnection,
     begins_with: &String,

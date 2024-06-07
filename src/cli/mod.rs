@@ -94,5 +94,9 @@ pub enum ReportAction {
         #[arg(long)]
         to: Option<chrono::NaiveDate>,
     },
+    Remove {
+        #[arg(long)]
+        id: String,
+    },
     List,
 }
