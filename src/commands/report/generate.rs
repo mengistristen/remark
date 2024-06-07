@@ -1,7 +1,7 @@
 use crate::commands::report::output_report;
 use crate::database;
 use crate::models::Report;
-use crate::utils::{get_path, DataDir};
+use crate::utils::{get_default_date, get_path, DataDir};
 use diesel::SqliteConnection;
 use std::fs;
 use uuid::Uuid;
@@ -10,12 +10,19 @@ use crate::errors::RemarkError;
 
 pub(crate) fn generate_report(
     mut conn: SqliteConnection,
-    report_name: String,
-    skip_marking: bool,
+    name: Option<String>,
+    from: chrono::NaiveDate,
+    to: Option<chrono::NaiveDate>,
 ) -> Result<(), RemarkError> {
+    let to = get_default_date(to);
+    let name = match name {
+        Some(name) => name,
+        None => format!("{} to {}", from, to),
+    };
+
     let report_id = Uuid::new_v4();
     let path = get_path(DataDir::Report)?.join(format!("{}.md", report_id));
-    let tasks = database::get_staged_tasks(&mut conn)?;
+    let tasks = database::get_tasks_in_range(&mut conn, from, to)?;
 
     if tasks.is_empty() {
         return Err(RemarkError::Error(
@@ -28,18 +35,12 @@ pub(crate) fn generate_report(
     {
         let report_file = fs::File::create_new(path.clone())?;
 
-        output_report(report_file, &tasks, &report_name)?;
-    }
-
-    if !skip_marking {
-        for task in tasks {
-            database::mark_task(&mut conn, task.id, true)?;
-        }
+        output_report(report_file, &tasks, &name)?;
     }
 
     let report = Report {
         id: report_id.to_string(),
-        name: report_name,
+        name,
     };
 
     if let Err(err) = database::insert_report(&mut conn, &report) {

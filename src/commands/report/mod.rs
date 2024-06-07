@@ -10,10 +10,11 @@ use crate::{
     utils::{get_path, DataDir},
 };
 
-use self::{generate::generate_report, list::list_reports, print::print_report};
+use self::{generate::generate_report, list::list_reports, open::open_report, print::print_report};
 
 mod generate;
 mod list;
+mod open;
 mod print;
 
 pub(crate) fn output_report<T: Write>(
@@ -51,8 +52,9 @@ pub(crate) fn output_report<T: Write>(
 
 pub fn process_report(conn: SqliteConnection, action: ReportAction) -> Result<(), RemarkError> {
     match action {
-        ReportAction::Generate { name, skip_marking } => generate_report(conn, name, skip_marking)?,
-        ReportAction::Print { id } => print_report(conn, id)?,
+        ReportAction::Generate { name, from, to } => generate_report(conn, name, from, to)?,
+        ReportAction::Open { id } => open_report(conn, id)?,
+        ReportAction::Print { from, to } => print_report(conn, from, to)?,
         ReportAction::List => list_reports(conn)?,
     };
 

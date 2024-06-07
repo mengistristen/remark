@@ -97,7 +97,6 @@ pub(crate) fn update_task(
             tasks_dsl::name.eq(&task.name),
             tasks_dsl::hours.eq(&task.hours),
             tasks_dsl::date.eq(&task.date),
-            tasks_dsl::staged.eq(&task.staged),
         ))
         .execute(conn)?;
 
@@ -155,35 +154,19 @@ pub(crate) fn get_tasks_like(
     Ok(result)
 }
 
-pub(crate) fn get_staged_tasks(conn: &mut SqliteConnection) -> Result<Vec<Task>, RemarkError> {
-    let result = tasks_dsl::tasks
-        .select(Task::as_select())
-        .filter(tasks_dsl::staged.eq(true))
-        .order(tasks_dsl::date.desc())
-        .load(conn)?;
-
-    Ok(result)
-}
-
-pub(crate) fn get_all_tasks(conn: &mut SqliteConnection) -> Result<Vec<Task>, RemarkError> {
-    let result = tasks_dsl::tasks
-        .select(Task::as_select())
-        .order(tasks_dsl::date.desc())
-        .load(conn)?;
-
-    Ok(result)
-}
-
-pub(crate) fn mark_task(
+pub(crate) fn get_tasks_in_range(
     conn: &mut SqliteConnection,
-    id: String,
-    staged: bool,
-) -> Result<(), RemarkError> {
-    diesel::update(tasks_dsl::tasks.find(id))
-        .set(tasks_dsl::staged.eq(staged))
-        .execute(conn)?;
+    from: chrono::NaiveDate,
+    to: chrono::NaiveDate,
+) -> Result<Vec<Task>, RemarkError> {
+    let result = tasks_dsl::tasks
+        .select(Task::as_select())
+        .filter(tasks_dsl::date.ge(from))
+        .filter(tasks_dsl::date.le(to))
+        .order(tasks_dsl::date.desc())
+        .load(conn)?;
 
-    Ok(())
+    Ok(result)
 }
 
 pub(crate) fn insert_report(

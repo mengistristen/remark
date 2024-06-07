@@ -54,8 +54,10 @@ pub enum TaskAction {
     },
     /// List all tasks
     List {
-        #[arg(short, long, default_value_t = false)]
-        staged: bool,
+        #[arg(long)]
+        from: chrono::NaiveDate,
+        #[arg(long)]
+        to: Option<chrono::NaiveDate>,
     },
     /// Edit a task
     Edit {
@@ -63,16 +65,6 @@ pub enum TaskAction {
         id: String,
         #[arg(short, long, default_value_t = false)]
         metadata: bool,
-    },
-    /// Stage a task for being used in a report
-    Stage {
-        #[arg(long)]
-        id: String,
-    },
-    /// UnStage a task
-    UnStage {
-        #[arg(long)]
-        id: String,
     },
     /// Remove a task
     Remove {
@@ -86,13 +78,21 @@ pub enum ReportAction {
     /// Creates a new report
     Generate {
         #[arg(long)]
-        name: String,
-        #[arg(short, long, default_value_t = false)]
-        skip_marking: bool,
+        name: Option<String>,
+        #[arg(long)]
+        from: chrono::NaiveDate,
+        #[arg(long)]
+        to: Option<chrono::NaiveDate>,
+    },
+    Open {
+        #[arg(long)]
+        id: String,
     },
     Print {
         #[arg(long)]
-        id: Option<String>,
+        from: chrono::NaiveDate,
+        #[arg(long)]
+        to: Option<chrono::NaiveDate>,
     },
     List,
 }

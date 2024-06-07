@@ -30,7 +30,6 @@ pub(crate) fn add_task(mut conn: SqliteConnection, project_id: String) -> Result
 
     let task = Task {
         id: task_id.to_string(),
-        staged: true,
         project_id: project.id,
         name,
         hours,

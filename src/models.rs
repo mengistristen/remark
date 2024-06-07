@@ -40,7 +40,6 @@ pub struct Task {
     pub name: String,
     pub hours: f32,
     pub date: chrono::NaiveDate,
-    pub staged: bool,
     pub project_id: String,
 }
 
@@ -49,7 +48,6 @@ pub struct UpdateTask<'a> {
     pub name: Cow<'a, String>,
     pub hours: Cow<'a, f32>,
     pub date: Cow<'a, chrono::NaiveDate>,
-    pub staged: Cow<'a, bool>,
 }
 
 impl<'a> UpdateTask<'a> {
@@ -58,7 +56,6 @@ impl<'a> UpdateTask<'a> {
             name: Cow::Borrowed(&task.name),
             hours: Cow::Borrowed(&task.hours),
             date: Cow::Borrowed(&task.date),
-            staged: Cow::Borrowed(&task.staged),
         }
     }
 }
