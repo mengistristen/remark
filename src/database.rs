@@ -163,7 +163,7 @@ pub(crate) fn get_tasks_in_range(
         .inner_join(projects::table)
         .filter(tasks_dsl::date.ge(from))
         .filter(tasks_dsl::date.le(to))
-        .order(tasks_dsl::date.desc())
+        .order(tasks_dsl::date.asc())
         .select((Task::as_select(), Project::as_select()))
         .load::<(Task, Project)>(conn)?;
 
