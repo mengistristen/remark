@@ -1,5 +1,4 @@
 -- This file should undo anything in `up.sql`
-
-
-ALTER TABLE `tasks` ADD COLUMN `staged` BOOL NOT NULL;
-
+DROP TABLE `reports`;
+DROP TABLE `projects`;
+DROP TABLE `tasks`;
