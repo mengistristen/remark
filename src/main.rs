@@ -7,16 +7,20 @@ use lib_remark::cli::{Cli, Command};
 use lib_remark::commands::project::process_project;
 use lib_remark::commands::report::process_report;
 use lib_remark::commands::task::process_task;
-use lib_remark::errors::RemarkError;
 use lib_remark::utils::get_base_dir;
 
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
-fn main() -> Result<(), RemarkError> {
+fn main() {
     let base_path = get_base_dir();
 
     if !base_path.exists() {
-        fs::create_dir_all(base_path)?;
+        fs::create_dir_all(&base_path).unwrap_or_else(|_| {
+            panic!(
+                "error: failed to create remark directory at {}",
+                base_path.to_string_lossy()
+            )
+        });
     }
 
     let database_path = get_base_dir().join("db.sqlite");
@@ -39,11 +43,11 @@ fn main() -> Result<(), RemarkError> {
     let conn = SqliteConnection::establish(database_url.as_str())
         .unwrap_or_else(|_| panic!("error connecting to {}", database_url));
 
-    match cli.command {
-        Command::Project { action } => process_project(conn, action)?,
-        Command::Task { action } => process_task(conn, action)?,
-        Command::Report { action } => process_report(conn, action)?,
-    };
-
-    Ok(())
+    if let Err(err) = match cli.command {
+        Command::Project { action } => process_project(conn, action),
+        Command::Task { action } => process_task(conn, action),
+        Command::Report { action } => process_report(conn, action),
+    } {
+        eprintln!("{}", err);
+    }
 }

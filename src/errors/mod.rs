@@ -15,6 +15,6 @@ pub enum RemarkError {
     EditorError,
     #[error("invalid file error")]
     InvalidFile,
-    #[error("remark error")]
+    #[error("error: {0}")]
     Error(String),
 }
