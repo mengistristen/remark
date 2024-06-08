@@ -7,7 +7,7 @@ use crate::{
     data::MdFile,
     errors::RemarkError,
     models::{Project, Task},
-    utils::{get_path, DataDir},
+    utils::{get_path, RemarkDir},
 };
 
 use self::{
@@ -37,7 +37,7 @@ pub(crate) fn output_report<T: Write>(
             current_date = Some(task.date);
         }
 
-        let task_path = get_path(DataDir::Task)?.join(format!("{}.md", task.id));
+        let task_path = get_path(RemarkDir::Task)?.join(format!("{}.md", task.id));
         let md_file = MdFile::<Task>::from_file(&task_path)?;
 
         writeln!(

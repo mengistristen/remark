@@ -7,7 +7,7 @@ use diesel::SqliteConnection;
 use tempfile::NamedTempFile;
 
 use crate::errors::RemarkError;
-use crate::utils::{get_path, launch_editor, DataDir};
+use crate::utils::{get_path, launch_editor, RemarkDir};
 
 pub(crate) fn edit_task(
     mut conn: SqliteConnection,
@@ -17,7 +17,7 @@ pub(crate) fn edit_task(
     let task = database::get_task_like(&mut conn, &id)?;
 
     let filename = format!("{}.md", task.id);
-    let path = get_path(DataDir::Task)?.join(filename);
+    let path = get_path(RemarkDir::Task)?.join(filename);
 
     let task_file = MdFile::<Task>::from_file(&path)?;
 

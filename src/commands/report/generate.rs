@@ -1,7 +1,7 @@
 use crate::commands::report::output_report;
 use crate::database;
 use crate::models::Report;
-use crate::utils::{get_date_or_default, get_path, DataDir};
+use crate::utils::{get_date_or_default, get_path, RemarkDir};
 use diesel::SqliteConnection;
 use std::fs;
 use uuid::Uuid;
@@ -21,7 +21,7 @@ pub(crate) fn generate_report(
     };
 
     let report_id = Uuid::new_v4();
-    let path = get_path(DataDir::Report)?.join(format!("{}.md", report_id));
+    let path = get_path(RemarkDir::Report)?.join(format!("{}.md", report_id));
     let tasks = database::get_tasks_in_range(&mut conn, from, to)?;
 
     if tasks.is_empty() {

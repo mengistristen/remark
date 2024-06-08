@@ -5,7 +5,7 @@ use crate::{
     database,
     errors::RemarkError,
     models::{Project, UpdateProject},
-    utils::{get_path, launch_editor, DataDir},
+    utils::{get_path, launch_editor, RemarkDir},
 };
 use diesel::SqliteConnection;
 use tempfile::NamedTempFile;
@@ -18,7 +18,7 @@ pub(crate) fn edit_project(
     let project = database::get_project_like(&mut conn, &id)?;
 
     let filename = format!("{}.md", project.id);
-    let path = get_path(DataDir::Project)?.join(filename);
+    let path = get_path(RemarkDir::Project)?.join(filename);
 
     let project_file = MdFile::<Project>::from_file(&path)?;
 

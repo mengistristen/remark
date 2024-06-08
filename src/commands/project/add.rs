@@ -2,7 +2,7 @@ use crate::data::MdFile;
 use crate::database;
 use crate::errors::RemarkError;
 use crate::models::Project;
-use crate::utils::{get_path, launch_editor, prompt_user, DataDir};
+use crate::utils::{get_path, launch_editor, prompt_user, RemarkDir};
 use diesel::SqliteConnection;
 use std::fs;
 use tempfile::NamedTempFile;
@@ -21,7 +21,7 @@ pub(crate) fn add_project(mut conn: SqliteConnection) -> Result<(), RemarkError>
     // save to file
     let md_file = MdFile::new(project.clone(), contents);
 
-    let final_path = get_path(DataDir::Project)?.join(format!("{}.md", id));
+    let final_path = get_path(RemarkDir::Project)?.join(format!("{}.md", id));
 
     md_file.save(&final_path)?;
 

@@ -4,7 +4,7 @@ use std::fs;
 use crate::{
     database,
     errors::RemarkError,
-    utils::{get_path, DataDir},
+    utils::{get_path, RemarkDir},
 };
 
 pub(crate) fn remove_project(mut conn: SqliteConnection, id: String) -> Result<(), RemarkError> {
@@ -13,7 +13,7 @@ pub(crate) fn remove_project(mut conn: SqliteConnection, id: String) -> Result<(
     database::remove_tasks_for_project(&mut conn, &project.id)?;
     database::remove_project(&mut conn, &project.id)?;
 
-    let project_path = get_path(DataDir::Project)?.join(format!("{}.md", project.id));
+    let project_path = get_path(RemarkDir::Project)?.join(format!("{}.md", project.id));
 
     fs::remove_file(project_path)?;
 

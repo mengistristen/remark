@@ -9,7 +9,7 @@ use crate::data::MdFile;
 use crate::database;
 use crate::errors::RemarkError;
 use crate::models::Task;
-use crate::utils::{get_path, launch_editor, prompt_user, DataDir};
+use crate::utils::{get_path, launch_editor, prompt_user, RemarkDir};
 
 pub(crate) fn add_task(mut conn: SqliteConnection, project_id: String) -> Result<(), RemarkError> {
     let task_id = Uuid::new_v4();
@@ -41,7 +41,7 @@ pub(crate) fn add_task(mut conn: SqliteConnection, project_id: String) -> Result
     // save to file
     let md_file = MdFile::new(task.clone(), contents);
 
-    let final_path = get_path(DataDir::Task)?.join(format!("{}.md", task_id));
+    let final_path = get_path(RemarkDir::Task)?.join(format!("{}.md", task_id));
 
     md_file.save(&final_path)?;
 

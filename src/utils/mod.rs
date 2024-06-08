@@ -5,7 +5,7 @@ use tempfile::NamedTempFile;
 
 use crate::errors::RemarkError;
 
-pub enum DataDir {
+pub enum RemarkDir {
     Project,
     Task,
     Report,
@@ -20,12 +20,12 @@ pub fn get_base_dir() -> std::path::PathBuf {
     data_dir
 }
 
-pub fn get_path(dir: DataDir) -> Result<std::path::PathBuf, std::io::Error> {
+pub fn get_path(dir: RemarkDir) -> Result<std::path::PathBuf, std::io::Error> {
     let base_path = get_base_dir();
     let path = match dir {
-        DataDir::Project => base_path.join("projects"),
-        DataDir::Task => base_path.join("tasks"),
-        DataDir::Report => base_path.join("reports"),
+        RemarkDir::Project => base_path.join("projects"),
+        RemarkDir::Task => base_path.join("tasks"),
+        RemarkDir::Report => base_path.join("reports"),
     };
 
     if !path.exists() {
