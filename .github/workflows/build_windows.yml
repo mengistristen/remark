@@ -24,3 +24,8 @@ jobs:
       run: cargo build --verbose --release --target aarch64-pc-windows-msvc
     - name: Run tests
       run: cargo test --verbose
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: target/aarch64-pc-windows-msvc/release/
