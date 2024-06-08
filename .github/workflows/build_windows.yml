@@ -16,6 +16,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Install toolchain 
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: aarch64-pc-windows-msvc
     - name: Build
       run: cargo build --verbose --release --target aarch64-pc-windows-msvc
     - name: Run tests
