@@ -1,7 +1,7 @@
 use crate::commands::report::output_report;
 use crate::database;
 use crate::models::Report;
-use crate::utils::{get_default_date, get_path, DataDir};
+use crate::utils::{get_date_or_default, get_path, DataDir};
 use diesel::SqliteConnection;
 use std::fs;
 use uuid::Uuid;
@@ -14,7 +14,7 @@ pub(crate) fn generate_report(
     from: chrono::NaiveDate,
     to: Option<chrono::NaiveDate>,
 ) -> Result<(), RemarkError> {
-    let to = get_default_date(to);
+    let to = get_date_or_default(to, chrono::Local::now().naive_local().into());
     let name = match name {
         Some(name) => name,
         None => format!("{} to {}", from, to),

@@ -63,9 +63,12 @@ pub(crate) fn prompt_user<T: FromStr>(prompt: &str) -> Result<T, RemarkError> {
     Ok(converted)
 }
 
-pub(crate) fn get_default_date(date: Option<chrono::NaiveDate>) -> chrono::NaiveDate {
+pub(crate) fn get_date_or_default(
+    date: Option<chrono::NaiveDate>,
+    default: chrono::NaiveDate,
+) -> chrono::NaiveDate {
     match date {
         Some(date) => date,
-        None => chrono::Local::now().naive_local().into(),
+        None => default,
     }
 }

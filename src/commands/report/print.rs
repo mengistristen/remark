@@ -5,7 +5,7 @@ use diesel::SqliteConnection;
 use crate::database;
 
 use crate::errors::RemarkError;
-use crate::utils::get_default_date;
+use crate::utils::get_date_or_default;
 
 use super::output_report;
 
@@ -14,7 +14,7 @@ pub(crate) fn print_report(
     from: chrono::NaiveDate,
     to: Option<chrono::NaiveDate>,
 ) -> Result<(), RemarkError> {
-    let to = get_default_date(to);
+    let to = get_date_or_default(to, chrono::Local::now().naive_local().into());
 
     let items = database::get_tasks_in_range(&mut conn, from, to)?;
     let name = "Current".to_owned();

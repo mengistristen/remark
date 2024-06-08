@@ -60,7 +60,7 @@ pub enum TaskAction {
     /// List all tasks
     List {
         #[arg(long)]
-        from: chrono::NaiveDate,
+        from: Option<chrono::NaiveDate>,
         #[arg(long)]
         to: Option<chrono::NaiveDate>,
     },
