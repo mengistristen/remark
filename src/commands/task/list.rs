@@ -16,8 +16,8 @@ pub(crate) fn list_tasks(
 
     for (task, project) in results {
         println!(
-            "{} {:30} {} {}",
-            task.id, project.name, task.date, task.name
+            "{} {} | {} | {}",
+            task.id, task.name, task.date, project.name
         );
     }
 
