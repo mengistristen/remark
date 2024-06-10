@@ -36,7 +36,13 @@ pub(crate) fn print_project(
                 current_date = Some(task.date);
             }
 
-            writeln!(stdout, "### {}\n", task.name)?;
+            writeln!(
+                stdout,
+                "### {} ({} {})\n",
+                task.name,
+                task.hours,
+                if task.hours == 1.0 { "hour" } else { "hours" }
+            )?;
 
             let md_file = MdFile::<Task>::from_file(&task_path)?;
 
