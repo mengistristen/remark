@@ -47,6 +47,8 @@ pub enum ProjectAction {
     Print {
         #[arg(long)]
         id: String,
+        #[arg(long, default_value_t = false)]
+        include_tasks: bool,
     },
 }
 

@@ -21,7 +21,7 @@ pub fn process_project(conn: SqliteConnection, action: ProjectAction) -> Result<
         ProjectAction::List => list_projects(conn)?,
         ProjectAction::Edit { id, metadata } => edit_project(conn, id, metadata)?,
         ProjectAction::Remove { id } => remove_project(conn, id)?,
-        ProjectAction::Print { id } => print_project(conn, id)?,
+        ProjectAction::Print { id, include_tasks } => print_project(conn, id, include_tasks)?,
     };
 
     Ok(())

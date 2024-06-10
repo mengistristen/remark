@@ -120,6 +120,18 @@ pub(crate) fn remove_tasks_for_project(
     Ok(())
 }
 
+pub(crate) fn get_tasks_for_project(
+    conn: &mut SqliteConnection,
+    project_id: &String,
+) -> Result<Vec<Task>, RemarkError> {
+    let tasks = tasks_dsl::tasks
+        .filter(tasks_dsl::project_id.eq(project_id))
+        .order(tasks_dsl::date.asc())
+        .load(conn)?;
+
+    Ok(tasks)
+}
+
 pub(crate) fn get_task_like(
     conn: &mut SqliteConnection,
     begins_with: &String,
