@@ -78,6 +78,7 @@ pub enum TaskAction {
         #[arg(long)]
         id: String,
     },
+    /// Print a task
     Print {
         #[arg(long)]
         id: String,
@@ -86,7 +87,7 @@ pub enum TaskAction {
 
 #[derive(Subcommand)]
 pub enum ReportAction {
-    /// Creates a new report
+    /// Create a new report
     Generate {
         #[arg(long)]
         name: Option<String>,
@@ -95,19 +96,23 @@ pub enum ReportAction {
         #[arg(long)]
         to: Option<chrono::NaiveDate>,
     },
+    /// Print a report by ID
     Open {
         #[arg(long)]
         id: String,
     },
+    /// Print a report based on the tasks in the given date range
     Print {
         #[arg(long)]
         from: Option<chrono::NaiveDate>,
         #[arg(long)]
         to: Option<chrono::NaiveDate>,
     },
+    /// Remove a report
     Remove {
         #[arg(long)]
         id: String,
     },
+    /// List all reports
     List,
 }
