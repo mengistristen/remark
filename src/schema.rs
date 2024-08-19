@@ -24,6 +24,21 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(tasks -> projects (project_id));
+diesel::table! {
+    tags (name) {
+        name -> Text,
+    }
+}
 
-diesel::allow_tables_to_appear_in_same_query!(projects, reports, tasks,);
+diesel::table! {
+    task_tags (task_id, tag_name) {
+        task_id -> Text,
+        tag_name -> Text,
+    }
+}
+
+diesel::joinable!(tasks -> projects (project_id));
+diesel::joinable!(task_tags -> tasks (task_id));
+diesel::joinable!(task_tags -> tags (tag_name));
+
+diesel::allow_tables_to_appear_in_same_query!(projects, reports, tasks, tags, task_tags,);
