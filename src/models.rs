@@ -33,15 +33,9 @@ pub struct Task {
     pub project_id: String,
 }
 
-#[derive(Queryable)]
-pub struct Tag {
-    pub name: String,
-}
-
 #[derive(Insertable, Associations)]
 #[diesel(table_name = crate::schema::task_tags)]
 #[diesel(belongs_to(Task))]
-#[diesel(belongs_to(Tag, foreign_key = tag_name))]
 pub struct TaskTag {
     pub task_id: String,
     pub tag_name: String,
