@@ -9,6 +9,7 @@ use crate::data::MdFile;
 use crate::database;
 use crate::errors::RemarkError;
 use crate::models::Task;
+use crate::serializable::SerializableTask;
 use crate::utils::{get_path, launch_editor, prompt_user, RemarkDir};
 
 pub(crate) fn add_task(mut conn: SqliteConnection, project_id: String) -> Result<(), RemarkError> {
@@ -39,7 +40,7 @@ pub(crate) fn add_task(mut conn: SqliteConnection, project_id: String) -> Result
     let contents = launch_editor(file)?;
 
     // save to file
-    let md_file = MdFile::new(task.clone(), contents);
+    let md_file = MdFile::<SerializableTask>::new((&task).into(), contents);
 
     let final_path = get_path(RemarkDir::Task)?.join(format!("{}.md", task_id));
 

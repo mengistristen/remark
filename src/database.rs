@@ -1,10 +1,11 @@
 use diesel::prelude::*;
 
 use crate::errors::RemarkError;
-use crate::models::{Project, Report, Task, UpdateProject, UpdateTask};
+use crate::models::{Project, Report, Task};
 use crate::schema::projects::{self, dsl as projects_dsl};
 use crate::schema::reports::{self, dsl as reports_dsl};
 use crate::schema::tasks::{self, dsl as tasks_dsl};
+use crate::serializable::{UpdateProject, UpdateTask};
 
 pub(crate) fn insert_project(
     conn: &mut SqliteConnection,
