@@ -19,6 +19,7 @@ pub(crate) fn add_task(mut conn: SqliteConnection, project_id: String) -> Result
     let name = prompt_user("Name")?;
     let hours = prompt_user("Hours")?;
     let date_str = prompt_user::<String>("Date (YYYY-MM-DD, default=today)")?;
+    let tags_str = prompt_user::<String>("Tags")?;
 
     let project = database::get_project_like(&mut conn, &project_id)?;
 
@@ -28,6 +29,12 @@ pub(crate) fn add_task(mut conn: SqliteConnection, project_id: String) -> Result
         NaiveDate::from_str(date_str.as_str())
             .map_err(|_| RemarkError::Error("error converting date from string".to_owned()))?
     };
+
+    let tags: Vec<String> = tags_str
+        .split(',')
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect();
 
     let task = Task {
         id: task_id.to_string(),
@@ -40,14 +47,24 @@ pub(crate) fn add_task(mut conn: SqliteConnection, project_id: String) -> Result
     let contents = launch_editor(file)?;
 
     // save to file
-    let md_file = MdFile::<SerializableTask>::new((&task).into(), contents);
+    let md_file = MdFile::new(
+        SerializableTask::from_task_with_tags(
+            &task,
+            if tags.is_empty() { None } else { Some(&tags) },
+        ),
+        contents,
+    );
 
     let final_path = get_path(RemarkDir::Task)?.join(format!("{}.md", task_id));
 
     md_file.save(&final_path)?;
 
     // save to DB
-    if let Err(err) = database::insert_task(&mut conn, &task) {
+    if let Err(err) = database::insert_task(
+        &mut conn,
+        &task,
+        if tags.is_empty() { None } else { Some(&tags) },
+    ) {
         fs::remove_file(final_path)?;
         return Err(err);
     }

@@ -13,6 +13,7 @@ pub(crate) fn generate_report(
     name: Option<String>,
     from: chrono::NaiveDate,
     to: Option<chrono::NaiveDate>,
+    tags: Option<Vec<String>>,
 ) -> Result<(), RemarkError> {
     let to = get_date_or_default(to, chrono::Local::now().naive_local().into());
     let name = match name {
@@ -22,7 +23,7 @@ pub(crate) fn generate_report(
 
     let report_id = Uuid::new_v4();
     let path = get_path(RemarkDir::Report)?.join(format!("{}.md", report_id));
-    let tasks = database::get_tasks_in_range(&mut conn, from, to)?;
+    let tasks = database::get_tasks_in_range(&mut conn, from, to, tags)?;
 
     if tasks.is_empty() {
         return Err(RemarkError::Error(

@@ -58,9 +58,14 @@ pub(crate) fn output_report<T: Write>(
 
 pub fn process_report(conn: SqliteConnection, action: ReportAction) -> Result<(), RemarkError> {
     match action {
-        ReportAction::Generate { name, from, to } => generate_report(conn, name, from, to)?,
+        ReportAction::Generate {
+            name,
+            from,
+            to,
+            tags,
+        } => generate_report(conn, name, from, to, tags)?,
         ReportAction::Open { id } => open_report(conn, id)?,
-        ReportAction::Print { from, to } => print_report(conn, from, to)?,
+        ReportAction::Print { from, to, tags } => print_report(conn, from, to, tags)?,
         ReportAction::Remove { id } => remove_report(conn, id)?,
         ReportAction::List => list_reports(conn)?,
     };
