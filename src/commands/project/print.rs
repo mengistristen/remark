@@ -3,7 +3,7 @@ use std::io::{self, Write};
 use diesel::SqliteConnection;
 
 use crate::data::MdFile;
-use crate::models::{Project, Task};
+use crate::serializable::{SerializableProject, SerializableTask};
 use crate::{
     database,
     errors::RemarkError,
@@ -17,7 +17,7 @@ pub(crate) fn print_project(
 ) -> Result<(), RemarkError> {
     let project = database::get_project_like(&mut conn, &id)?;
     let project_path = get_path(RemarkDir::Project)?.join(format!("{}.md", project.id));
-    let file = MdFile::<Project>::from_file(&project_path)?;
+    let file = MdFile::<SerializableProject>::from_file(&project_path)?;
     let mut stdout = io::stdout();
 
     stdout.write_all(file.content.as_bytes())?;
@@ -44,7 +44,7 @@ pub(crate) fn print_project(
                 if task.hours == 1.0 { "hour" } else { "hours" }
             )?;
 
-            let md_file = MdFile::<Task>::from_file(&task_path)?;
+            let md_file = MdFile::<SerializableTask>::from_file(&task_path)?;
 
             stdout.write_all(md_file.content.as_bytes())?;
 

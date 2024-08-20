@@ -4,7 +4,7 @@ use crate::{
     data::MdFile,
     database,
     errors::RemarkError,
-    models::{Project, UpdateProject},
+    serializable::{SerializableProject, UpdateProject},
     utils::{get_path, launch_editor, RemarkDir},
 };
 use diesel::SqliteConnection;
@@ -20,12 +20,12 @@ pub(crate) fn edit_project(
     let filename = format!("{}.md", project.id);
     let path = get_path(RemarkDir::Project)?.join(filename);
 
-    let project_file = MdFile::<Project>::from_file(&path)?;
+    let project_file = MdFile::<SerializableProject>::from_file(&path)?;
 
     let mut file = NamedTempFile::new()?;
 
     if metadata {
-        let update = UpdateProject::from_project(&project_file.metadata);
+        let update = UpdateProject::from_project(&project);
         let metadata_str = serde_yaml::to_string(&update)?;
 
         file.write_all(metadata_str.as_bytes())?;
@@ -39,11 +39,12 @@ pub(crate) fn edit_project(
         let deserialized = serde_yaml::from_str(contents.as_str())?;
         let new_project = database::update_project(&mut conn, project.id, &deserialized)?;
 
-        let new_file = MdFile::new(new_project, project_file.content);
+        let new_file =
+            MdFile::<SerializableProject>::new((&new_project).into(), project_file.content);
 
         new_file.save(&path)?;
     } else {
-        let new_file = MdFile::new(project, contents);
+        let new_file = MdFile::<SerializableProject>::new((&project).into(), contents);
 
         new_file.save(&path)?;
     }

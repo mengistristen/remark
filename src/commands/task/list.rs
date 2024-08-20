@@ -12,7 +12,7 @@ pub(crate) fn list_tasks(
 ) -> Result<(), RemarkError> {
     let from = get_date_or_default(from, chrono::NaiveDate::MIN);
     let to = get_date_or_default(to, chrono::Local::now().naive_local().into());
-    let results = database::get_tasks_in_range(&mut conn, from, to)?;
+    let results = database::get_tasks_in_range(&mut conn, from, to, None)?;
 
     for (task, project) in results {
         println!(

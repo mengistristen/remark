@@ -2,7 +2,7 @@ use std::io::Write;
 
 use crate::data::MdFile;
 use crate::database;
-use crate::models::{Task, UpdateTask};
+use crate::serializable::{SerializableTask, UpdateTask};
 use diesel::SqliteConnection;
 use tempfile::NamedTempFile;
 
@@ -19,12 +19,12 @@ pub(crate) fn edit_task(
     let filename = format!("{}.md", task.id);
     let path = get_path(RemarkDir::Task)?.join(filename);
 
-    let task_file = MdFile::<Task>::from_file(&path)?;
+    let task_file = MdFile::<SerializableTask>::from_file(&path)?;
 
     let mut file = NamedTempFile::new()?;
 
     if metadata {
-        let update = UpdateTask::from_task(&task);
+        let update = UpdateTask::from_task(&mut conn, &task)?;
         let metadata_str = serde_yaml::to_string(&update)?;
 
         file.write_all(metadata_str.as_bytes())?;
@@ -36,13 +36,16 @@ pub(crate) fn edit_task(
 
     if metadata {
         let deserialized = serde_yaml::from_str(contents.as_str())?;
-        let new_task = database::update_task(&mut conn, task.id, &deserialized)?;
+        let new_task = database::update_task(&mut conn, &task.id, &deserialized)?;
 
-        let new_file = MdFile::new(new_task, task_file.content);
+        let new_file = MdFile::new(
+            SerializableTask::from_task(&mut conn, &new_task)?,
+            task_file.content,
+        );
 
         new_file.save(&path)?;
     } else {
-        let new_file = MdFile::new(task, contents);
+        let new_file = MdFile::new(SerializableTask::from_task(&mut conn, &task)?, contents);
 
         new_file.save(&path)?;
     }

@@ -2,6 +2,7 @@ use crate::data::MdFile;
 use crate::database;
 use crate::errors::RemarkError;
 use crate::models::Project;
+use crate::serializable::SerializableProject;
 use crate::utils::{get_path, launch_editor, prompt_user, RemarkDir};
 use diesel::SqliteConnection;
 use std::fs;
@@ -19,7 +20,7 @@ pub(crate) fn add_project(mut conn: SqliteConnection) -> Result<(), RemarkError>
     let contents = launch_editor(file)?;
 
     // save to file
-    let md_file = MdFile::new(project.clone(), contents);
+    let md_file = MdFile::<SerializableProject>::new((&project).into(), contents);
 
     let final_path = get_path(RemarkDir::Project)?.join(format!("{}.md", id));
 

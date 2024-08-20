@@ -1,10 +1,12 @@
 use diesel::prelude::*;
 
 use crate::errors::RemarkError;
-use crate::models::{Project, Report, Task, UpdateProject, UpdateTask};
+use crate::models::{Project, Report, Task, TaskTag};
 use crate::schema::projects::{self, dsl as projects_dsl};
 use crate::schema::reports::{self, dsl as reports_dsl};
+use crate::schema::task_tags::{self, dsl as task_tags_dsl};
 use crate::schema::tasks::{self, dsl as tasks_dsl};
+use crate::serializable::{UpdateProject, UpdateTask};
 
 pub(crate) fn insert_project(
     conn: &mut SqliteConnection,
@@ -79,26 +81,69 @@ pub(crate) fn get_all_projects(conn: &mut SqliteConnection) -> Result<Vec<Projec
     Ok(result)
 }
 
-pub(crate) fn insert_task(conn: &mut SqliteConnection, task: &Task) -> Result<(), RemarkError> {
-    diesel::insert_into(tasks::table)
-        .values(task)
-        .execute(conn)?;
+pub(crate) fn insert_task(
+    conn: &mut SqliteConnection,
+    task: &Task,
+    tags: Option<&[String]>,
+) -> Result<(), RemarkError> {
+    conn.transaction::<_, diesel::result::Error, _>(|conn| {
+        diesel::insert_into(tasks::table)
+            .values(task)
+            .execute(conn)?;
+
+        if let Some(tags) = tags {
+            let task_tags: Vec<TaskTag> = tags
+                .iter()
+                .map(|tag| TaskTag {
+                    task_id: task.id.clone(),
+                    tag_name: tag.clone(),
+                })
+                .collect();
+
+            diesel::insert_into(task_tags::table)
+                .values(task_tags)
+                .execute(conn)?;
+        }
+
+        Ok(())
+    })?;
 
     Ok(())
 }
 
 pub(crate) fn update_task(
     conn: &mut SqliteConnection,
-    id: String,
+    id: &String,
     task: &UpdateTask,
 ) -> Result<Task, RemarkError> {
-    diesel::update(tasks_dsl::tasks.filter(tasks_dsl::id.eq(&id)))
-        .set((
-            tasks_dsl::name.eq(&task.name),
-            tasks_dsl::hours.eq(&task.hours),
-            tasks_dsl::date.eq(&task.date),
-        ))
-        .execute(conn)?;
+    conn.transaction::<_, diesel::result::Error, _>(|conn| {
+        diesel::update(tasks_dsl::tasks.filter(tasks_dsl::id.eq(&id)))
+            .set((
+                tasks_dsl::name.eq(&task.name),
+                tasks_dsl::hours.eq(&task.hours),
+                tasks_dsl::date.eq(&task.date),
+            ))
+            .execute(conn)?;
+
+        diesel::delete(task_tags_dsl::task_tags.filter(task_tags_dsl::task_id.eq(id)))
+            .execute(conn)?;
+
+        if let Some(ref tags) = task.tags {
+            let task_tags: Vec<TaskTag> = tags
+                .iter()
+                .map(|tag| TaskTag {
+                    task_id: id.clone(),
+                    tag_name: tag.clone(),
+                })
+                .collect();
+
+            diesel::insert_into(task_tags::table)
+                .values(task_tags)
+                .execute(conn)?;
+        }
+
+        Ok(())
+    })?;
 
     let task = get_task_like(conn, &id)?;
 
@@ -170,14 +215,24 @@ pub(crate) fn get_tasks_in_range(
     conn: &mut SqliteConnection,
     from: chrono::NaiveDate,
     to: chrono::NaiveDate,
+    tags: Option<Vec<String>>,
 ) -> Result<Vec<(Task, Project)>, RemarkError> {
-    let tasks_with_projects = tasks::table
+    let mut query = tasks::table
         .inner_join(projects::table)
+        .left_join(task_tags::table.on(task_tags_dsl::task_id.eq(tasks_dsl::id)))
+        .into_boxed();
+
+    if let Some(tags) = tags {
+        query = query.filter(task_tags_dsl::tag_name.eq_any(tags));
+    }
+
+    let query = query
         .filter(tasks_dsl::date.ge(from))
         .filter(tasks_dsl::date.le(to))
         .order(tasks_dsl::date.asc())
-        .select((Task::as_select(), Project::as_select()))
-        .load::<(Task, Project)>(conn)?;
+        .select((Task::as_select(), Project::as_select()));
+
+    let tasks_with_projects = query.load::<(Task, Project)>(conn)?;
 
     Ok(tasks_with_projects)
 }
@@ -239,4 +294,20 @@ pub(crate) fn get_all_reports(conn: &mut SqliteConnection) -> Result<Vec<Report>
         .load(conn)?;
 
     Ok(result)
+}
+
+pub(crate) fn get_tags_for_task(
+    conn: &mut SqliteConnection,
+    task_id: &String,
+) -> Result<Option<Vec<String>>, RemarkError> {
+    let result: Vec<String> = task_tags_dsl::task_tags
+        .filter(task_tags_dsl::task_id.eq(task_id))
+        .select(task_tags_dsl::tag_name)
+        .load(conn)?;
+
+    if result.is_empty() {
+        Ok(None)
+    } else {
+        Ok(Some(result))
+    }
 }
