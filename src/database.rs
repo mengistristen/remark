@@ -145,7 +145,7 @@ pub(crate) fn update_task(
         Ok(())
     })?;
 
-    let task = get_task_like(conn, &id)?;
+    let task = get_task_like(conn, id)?;
 
     Ok(task)
 }

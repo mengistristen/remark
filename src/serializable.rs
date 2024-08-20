@@ -47,10 +47,7 @@ impl<'a> SerializableTask<'a> {
             hours: Cow::Borrowed(&task.hours),
             date: Cow::Borrowed(&task.date),
             project_id: Cow::Borrowed(&task.project_id),
-            tags: match tags {
-                Some(tags) => Some(Cow::Owned(tags)),
-                None => None,
-            },
+            tags: tags.map(Cow::Owned),
         })
     }
 
@@ -61,10 +58,7 @@ impl<'a> SerializableTask<'a> {
             hours: Cow::Borrowed(&task.hours),
             date: Cow::Borrowed(&task.date),
             project_id: Cow::Borrowed(&task.project_id),
-            tags: match tags {
-                Some(tags) => Some(Cow::Borrowed(tags)),
-                None => None,
-            },
+            tags: tags.map(Cow::Borrowed),
         }
     }
 }
@@ -98,10 +92,7 @@ impl<'a> UpdateTask<'a> {
             name: Cow::Borrowed(&task.name),
             hours: Cow::Borrowed(&task.hours),
             date: Cow::Borrowed(&task.date),
-            tags: match tags {
-                Some(tags) => Some(Cow::Owned(tags)),
-                None => None,
-            },
+            tags: tags.map(Cow::Owned),
         })
     }
 }
