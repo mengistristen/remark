@@ -3,13 +3,13 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum RemarkError {
-    #[error("I/O error")]
+    #[error("I/O error: {0}")]
     IoError(#[from] io::Error),
-    #[error("file persistance error")]
+    #[error("file persistance error: {0}")]
     PersistError(#[from] tempfile::PersistError),
-    #[error("yaml error")]
+    #[error("yaml error: {0}")]
     YamlError(#[from] serde_yaml::Error),
-    #[error("database error")]
+    #[error("database error: {0}")]
     DatabaseError(#[from] diesel::result::Error),
     #[error("editor error")]
     EditorError,
