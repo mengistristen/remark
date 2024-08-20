@@ -156,15 +156,6 @@ pub(crate) fn remove_task(conn: &mut SqliteConnection, id: &String) -> Result<()
     Ok(())
 }
 
-pub(crate) fn remove_tasks_for_project(
-    conn: &mut SqliteConnection,
-    project_id: &String,
-) -> Result<(), RemarkError> {
-    diesel::delete(tasks_dsl::tasks.filter(tasks_dsl::project_id.eq(project_id))).execute(conn)?;
-
-    Ok(())
-}
-
 pub(crate) fn get_tasks_for_project(
     conn: &mut SqliteConnection,
     project_id: &String,
@@ -230,8 +221,8 @@ pub(crate) fn get_tasks_in_range(
         .filter(tasks_dsl::date.ge(from))
         .filter(tasks_dsl::date.le(to))
         .order(tasks_dsl::date.asc())
-        .distinct()
-        .select((Task::as_select(), Project::as_select()));
+        .select((Task::as_select(), Project::as_select()))
+        .distinct();
 
     let tasks_with_projects = query.load::<(Task, Project)>(conn)?;
 
