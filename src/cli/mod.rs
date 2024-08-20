@@ -23,6 +23,16 @@ pub enum Command {
         #[command(subcommand)]
         action: ReportAction,
     },
+    /// Import data
+    Import {
+        #[arg(long)]
+        input_file: String,
+    },
+    /// Export data
+    Export {
+        #[arg(long)]
+        output_file: String,
+    },
 }
 
 #[derive(Subcommand)]

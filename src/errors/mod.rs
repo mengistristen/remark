@@ -11,6 +11,8 @@ pub enum RemarkError {
     YamlError(#[from] serde_yaml::Error),
     #[error("database error: {0}")]
     DatabaseError(#[from] diesel::result::Error),
+    #[error("strip prefix error: {0}")]
+    StripPrefixError(#[from] std::path::StripPrefixError),
     #[error("editor error")]
     EditorError,
     #[error("invalid file error")]

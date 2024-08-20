@@ -4,6 +4,8 @@ use clap::Parser;
 use diesel::{Connection, SqliteConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use lib_remark::cli::{Cli, Command};
+use lib_remark::commands::export::process_export;
+use lib_remark::commands::import::process_import;
 use lib_remark::commands::project::process_project;
 use lib_remark::commands::report::process_report;
 use lib_remark::commands::task::process_task;
@@ -45,6 +47,8 @@ fn main() {
         Command::Project { action } => process_project(conn, action),
         Command::Task { action } => process_task(conn, action),
         Command::Report { action } => process_report(conn, action),
+        Command::Import { input_file } => process_import(conn, input_file),
+        Command::Export { output_file } => process_export(output_file),
     } {
         eprintln!("{}", err);
     }
