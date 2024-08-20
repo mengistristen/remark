@@ -230,6 +230,7 @@ pub(crate) fn get_tasks_in_range(
         .filter(tasks_dsl::date.ge(from))
         .filter(tasks_dsl::date.le(to))
         .order(tasks_dsl::date.asc())
+        .distinct()
         .select((Task::as_select(), Project::as_select()));
 
     let tasks_with_projects = query.load::<(Task, Project)>(conn)?;
