@@ -31,13 +31,11 @@ fn main() {
             .expect("failed to convert path to string")
     );
 
-    if !database_path.exists() {
-        let mut conn = SqliteConnection::establish(&database_url)
-            .unwrap_or_else(|_| panic!("error connecting to {}", database_url));
+    let mut conn = SqliteConnection::establish(&database_url)
+        .unwrap_or_else(|_| panic!("error connecting to {}", database_url));
 
-        conn.run_pending_migrations(MIGRATIONS)
-            .expect("failed to run migrations");
-    }
+    conn.run_pending_migrations(MIGRATIONS)
+        .expect("failed to run migrations");
 
     let cli = Cli::parse();
     let conn = SqliteConnection::establish(database_url.as_str())
