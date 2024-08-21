@@ -5,12 +5,23 @@ use diesel::{
     Selectable,
 };
 
+use crate::serializable::{SerializableProject, SerializableTask};
+
 #[derive(Queryable, Selectable, Insertable, Identifiable, Debug, Clone)]
 #[diesel(table_name = crate::schema::projects)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Project {
     pub id: String,
     pub name: String,
+}
+
+impl From<SerializableProject<'_>> for Project {
+    fn from(value: SerializableProject<'_>) -> Self {
+        Self {
+            id: value.id.into_owned(),
+            name: value.name.into_owned(),
+        }
+    }
 }
 
 #[derive(Queryable, Selectable, Insertable, Debug)]
@@ -31,6 +42,18 @@ pub struct Task {
     pub hours: f32,
     pub date: chrono::NaiveDate,
     pub project_id: String,
+}
+
+impl From<SerializableTask<'_>> for Task {
+    fn from(value: SerializableTask<'_>) -> Self {
+        Self {
+            id: value.id.into_owned(),
+            name: value.name.into_owned(),
+            hours: value.hours.into_owned(),
+            date: value.date.into_owned(),
+            project_id: value.project_id.into_owned(),
+        }
+    }
 }
 
 #[derive(Insertable, Associations)]

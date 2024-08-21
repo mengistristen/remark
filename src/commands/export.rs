@@ -1,12 +1,22 @@
-use std::{fs::{self, File}, path::{Path,PathBuf}};
+use std::{
+    fs::{self, File},
+    path::{Path, PathBuf},
+};
 
 use flate2::{write::GzEncoder, Compression};
 use tar::Builder;
 
-use crate::{errors::RemarkError, utils::{self, RemarkDir}};
+use crate::{
+    errors::RemarkError,
+    utils::{self, RemarkDir},
+};
 
 pub fn process_export(output_file: String) -> Result<(), RemarkError> {
-    let dirs = [utils::get_path(RemarkDir::Project)?, utils::get_path(RemarkDir::Task)?, utils::get_path(RemarkDir::Report)?];
+    let dirs = [
+        utils::get_path(RemarkDir::Project)?,
+        utils::get_path(RemarkDir::Task)?,
+        utils::get_path(RemarkDir::Report)?,
+    ];
     let base_path = utils::get_base_dir();
 
     let output_file_name = Path::new(&output_file)
