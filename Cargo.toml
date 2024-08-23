@@ -13,9 +13,11 @@ clap = { version = "4.5.4", features = ["derive"] }
 diesel = { version = "2.2.0", features = ["sqlite", "chrono"] }
 diesel_migrations = { version = "2.2.0", features = ["sqlite"] }
 dirs = "5.0.1"
+flate2 = "1.0.32"
 libsqlite3-sys = { version = "0.28.0", features = ["bundled"] }
 serde = { version = "1.0.202", features = ["derive"] }
 serde_yaml = "0.9.34"
+tar = "0.4.41"
 tempfile = "3.10.1"
 thiserror = "1.0.61"
 uuid = { version = "1.8.0", features = ["v4"] }
