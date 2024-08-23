@@ -1,12 +1,9 @@
-use std::{
-    ffi::OsStr,
-    fs::{self, File},
-    io::Read,
-};
+use std::fs::{self, File};
+use std::io::Read;
 
 use diesel::SqliteConnection;
 use flate2::read::GzDecoder;
-use tar::{Archive, Entry};
+use tar::Archive;
 
 use crate::{
     data::MdFile,
@@ -22,49 +19,83 @@ pub fn process_import(mut conn: SqliteConnection, input_file: String) -> Result<
     let decoder = GzDecoder::new(file);
     let mut archive = Archive::new(decoder);
 
+    let mut projects = vec![];
+    let mut tasks = vec![];
+    let mut reports = vec![];
+
     for entry in archive.entries()? {
-        if let Err(err) = process_entry(&mut conn, entry?) {
-            eprintln!("{}... skipping", err);
+        let mut entry = entry?;
+
+        let path = match entry.header().path() {
+            Ok(p) => p.into_owned(),
+            Err(err) => {
+                eprintln!("error extracting path: {}... skipping", err);
+                continue;
+            }
+        };
+
+        let parent = match path.parent() {
+            Some(p) => p,
+            None => {
+                eprintln!(
+                    "error extracting parent for entry {}... skipping",
+                    path.to_string_lossy()
+                );
+                continue;
+            }
+        };
+
+        let file_name = match path.file_name() {
+            Some(f) => f.to_string_lossy().into_owned(),
+            None => {
+                eprintln!(
+                    "error extracting file name for entry {}... skipping",
+                    path.to_string_lossy()
+                );
+                continue;
+            }
+        };
+
+        // sadly it seems I have to read all the files into memory, seems reading
+        // the entries out of order causes some corruption
+        let mut contents = String::new();
+        entry.read_to_string(&mut contents)?;
+
+        match parent {
+            p if p.ends_with("projects") => projects.push((file_name, contents)),
+            p if p.ends_with("tasks") => tasks.push((file_name, contents)),
+            p if p.ends_with("reports") => reports.push((file_name, contents)),
+            _ => eprintln!(
+                "invalid parent directory for entry {}... skipping",
+                path.to_string_lossy()
+            ),
+        };
+    }
+
+    for entry in projects {
+        if let Err(err) = process_project(&mut conn, &entry.0, entry.1) {
+            eprintln!("project {}: {}... skipping", entry.0, err);
+        }
+    }
+
+    for entry in tasks {
+        if let Err(err) = process_task(&mut conn, &entry.0, entry.1) {
+            eprintln!("task {}: {}... skipping", entry.0, err);
+        }
+    }
+
+    for entry in reports {
+        if let Err(err) = process_report(&mut conn, &entry.0, entry.1) {
+            eprintln!("report {}: {}... skipping", entry.0, err);
         }
     }
 
     Ok(())
 }
 
-fn process_entry(
-    conn: &mut SqliteConnection,
-    mut entry: Entry<GzDecoder<File>>,
-) -> Result<(), RemarkError> {
-    let path = entry.header().path()?.into_owned();
-
-    let mut buffer = String::new();
-    entry.read_to_string(&mut buffer)?;
-
-    let parent = path.parent().ok_or(RemarkError::Error(format!(
-        "error extracting parent for entry {}",
-        path.to_string_lossy()
-    )))?;
-    let file_name = path.file_name().ok_or(RemarkError::Error(format!(
-        "error extracting file name for entry {}",
-        path.to_string_lossy()
-    )))?;
-
-    match parent {
-        p if p.ends_with("projects") => process_project(conn, file_name, buffer),
-        p if p.ends_with("tasks") => process_task(conn, file_name, buffer),
-        p if p.ends_with("reports") => process_report(conn, file_name, buffer),
-        _ => Err(RemarkError::Error(format!(
-            "invalid parent directory for file {}... skipping",
-            path.to_string_lossy()
-        ))),
-    }?;
-
-    Ok(())
-}
-
 fn process_project(
     conn: &mut SqliteConnection,
-    file_name: &OsStr,
+    file_name: &str,
     contents: String,
 ) -> Result<(), RemarkError> {
     let md_file = MdFile::<SerializableProject>::from_string(contents)?;
@@ -85,11 +116,11 @@ fn process_project(
 
 fn process_task(
     conn: &mut SqliteConnection,
-    file_name: &OsStr,
+    file_name: &str,
     contents: String,
 ) -> Result<(), RemarkError> {
     let md_file = MdFile::<SerializableTask>::from_string(contents)?;
-    let mut md_path = utils::get_path(RemarkDir::Project)?;
+    let mut md_path = utils::get_path(RemarkDir::Task)?;
 
     md_path.push(file_name);
     md_file.save(&md_path)?;
@@ -118,7 +149,7 @@ fn process_task(
 
 fn process_report(
     _conn: &mut SqliteConnection,
-    _file_name: &OsStr,
+    _file_name: &str,
     _contents: String,
 ) -> Result<(), RemarkError> {
     Err(RemarkError::Error("cannot process reports".to_owned()))
