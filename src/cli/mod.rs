@@ -25,12 +25,12 @@ pub enum Command {
     },
     /// Import data
     Import {
-        #[arg(long)]
+        #[arg(short, long)]
         input_file: String,
     },
     /// Export data
     Export {
-        #[arg(long)]
+        #[arg(short, long)]
         output_file: String,
     },
 }
