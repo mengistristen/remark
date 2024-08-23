@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{fs::File, io::Write, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 
@@ -43,5 +43,39 @@ where
         } else {
             Err(RemarkError::InvalidFile)
         }
+    }
+
+    pub(crate) fn as_writer(metadata: T, path: &PathBuf) -> Result<MdFileWriter, RemarkError> {
+        let file = File::create(path)?;
+        let mut writer = MdFileWriter { file };
+
+        writer.write_metadata(&metadata)?;
+
+        Ok(writer)
+    }
+}
+
+pub(crate) struct MdFileWriter {
+    file: File,
+}
+
+impl MdFileWriter {
+    fn write_metadata<T>(&mut self, metadata: &T) -> Result<(), RemarkError>
+    where
+        T: Serialize,
+    {
+        let frontmatter = serde_yaml::to_string(metadata)?;
+        writeln!(self.file, "{}---", frontmatter)?;
+        Ok(())
+    }
+}
+
+impl Write for MdFileWriter {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        self.file.write(buf)
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        self.file.flush()
     }
 }

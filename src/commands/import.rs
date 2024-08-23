@@ -9,8 +9,8 @@ use crate::{
     data::MdFile,
     database,
     errors::RemarkError,
-    models::{Project, Task},
-    serializable::{SerializableProject, SerializableTask},
+    models::{Project, Report, Task},
+    serializable::{SerializableProject, SerializableReport, SerializableTask},
     utils::{self, RemarkDir},
 };
 
@@ -148,9 +148,22 @@ fn process_task(
 }
 
 fn process_report(
-    _conn: &mut SqliteConnection,
-    _file_name: &str,
-    _contents: String,
+    conn: &mut SqliteConnection,
+    file_name: &str,
+    contents: String,
 ) -> Result<(), RemarkError> {
-    Err(RemarkError::Error("cannot process reports".to_owned()))
+    let md_file = MdFile::<SerializableReport>::from_string(contents)?;
+    let mut md_path = utils::get_path(RemarkDir::Report)?;
+
+    md_path.push(file_name);
+    md_file.save(&md_path)?;
+
+    let report: Report = md_file.metadata.into();
+    let result = database::insert_report(conn, &report);
+
+    if result.is_err() {
+        fs::remove_file(md_path)?;
+    }
+
+    result
 }

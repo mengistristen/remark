@@ -5,7 +5,7 @@ use diesel::{
     Selectable,
 };
 
-use crate::serializable::{SerializableProject, SerializableTask};
+use crate::serializable::{SerializableProject, SerializableReport, SerializableTask};
 
 #[derive(Queryable, Selectable, Insertable, Identifiable, Debug, Clone)]
 #[diesel(table_name = crate::schema::projects)]
@@ -30,6 +30,15 @@ impl From<SerializableProject<'_>> for Project {
 pub struct Report {
     pub id: String,
     pub name: String,
+}
+
+impl From<SerializableReport<'_>> for Report {
+    fn from(value: SerializableReport<'_>) -> Self {
+        Self {
+            id: value.id.into_owned(),
+            name: value.name.into_owned(),
+        }
+    }
 }
 
 #[derive(Queryable, Selectable, Insertable, Associations, Identifiable, Debug, Clone)]
