@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     database,
     errors::RemarkError,
-    models::{Project, Task},
+    models::{Project, Report, Task},
 };
 
 #[derive(Serialize, Deserialize)]
@@ -59,6 +59,21 @@ impl<'a> SerializableTask<'a> {
             date: Cow::Borrowed(&task.date),
             project_id: Cow::Borrowed(&task.project_id),
             tags: tags.map(Cow::Borrowed),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SerializableReport<'a> {
+    pub id: Cow<'a, String>,
+    pub name: Cow<'a, String>,
+}
+
+impl<'a> From<&'a Report> for SerializableReport<'a> {
+    fn from(value: &'a Report) -> Self {
+        Self {
+            id: Cow::Borrowed(&value.id),
+            name: Cow::Borrowed(&value.name),
         }
     }
 }

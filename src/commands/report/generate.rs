@@ -1,6 +1,8 @@
 use crate::commands::report::output_report;
+use crate::data::MdFile;
 use crate::database;
 use crate::models::Report;
+use crate::serializable::SerializableReport;
 use crate::utils::{get_date_or_default, get_path, RemarkDir};
 use diesel::SqliteConnection;
 use std::fs;
@@ -31,18 +33,18 @@ pub(crate) fn generate_report(
         ));
     }
 
+    let report = Report {
+        id: report_id.to_string(),
+        name: name.clone(),
+    };
+
     // create the report file in a new scope so that it is closed
     // before the program might try to remove it
     {
-        let report_file = fs::File::create_new(path.clone())?;
+        let writer = MdFile::<SerializableReport>::as_writer((&report).into(), &path)?;
 
-        output_report(report_file, &tasks, &name)?;
+        output_report(writer, &tasks, &name)?;
     }
-
-    let report = Report {
-        id: report_id.to_string(),
-        name,
-    };
 
     if let Err(err) = database::insert_report(&mut conn, &report) {
         fs::remove_file(path)?;
