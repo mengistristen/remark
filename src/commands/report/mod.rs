@@ -26,6 +26,7 @@ pub(crate) fn output_report<T: Write>(
     mut writer: T,
     task_project_pairs: &Vec<(Task, Project)>,
     report_name: &String,
+    exclude_hours: bool,
 ) -> Result<(), RemarkError> {
     let mut current_date = None;
 
@@ -41,14 +42,19 @@ pub(crate) fn output_report<T: Write>(
         let task_path = get_path(RemarkDir::Task)?.join(format!("{}.md", task.id));
         let md_file = MdFile::<SerializableTask>::from_file(&task_path)?;
 
-        writeln!(
-            writer,
-            "### {} | {} ({} {})\n",
-            project.name,
-            task.name,
-            task.hours,
-            if task.hours == 1.0 { "hour" } else { "hours" }
-        )?;
+        let task_header = if exclude_hours {
+            format!("### {} | {}\n", project.name, task.name)
+        } else {
+            format!(
+                "### {} | {} ({} {})\n",
+                project.name,
+                task.name,
+                task.hours,
+                if task.hours == 1.0 { "hour" } else { "hours" }
+            )
+        };
+
+        writer.write(task_header.as_bytes())?;
 
         writeln!(writer, "{}", md_file.content)?;
     }
@@ -63,9 +69,15 @@ pub fn process_report(conn: SqliteConnection, action: ReportAction) -> Result<()
             from,
             to,
             tags,
-        } => generate_report(conn, name, from, to, tags)?,
+            exclude_hours,
+        } => generate_report(conn, name, from, to, tags, exclude_hours)?,
         ReportAction::Open { id } => open_report(conn, id)?,
-        ReportAction::Print { from, to, tags } => print_report(conn, from, to, tags)?,
+        ReportAction::Print {
+            from,
+            to,
+            tags,
+            exclude_hours,
+        } => print_report(conn, from, to, tags, exclude_hours)?,
         ReportAction::Remove { id } => remove_report(conn, id)?,
         ReportAction::List => list_reports(conn)?,
     };

@@ -107,6 +107,8 @@ pub enum ReportAction {
         to: Option<chrono::NaiveDate>,
         #[arg(long, value_delimiter = ',')]
         tags: Option<Vec<String>>,
+        #[arg(long)]
+        exclude_hours: bool,
     },
     /// Print a report by ID
     Open {
@@ -121,6 +123,8 @@ pub enum ReportAction {
         to: Option<chrono::NaiveDate>,
         #[arg(long, value_delimiter = ',')]
         tags: Option<Vec<String>>,
+        #[arg(long)]
+        exclude_hours: bool,
     },
     /// Remove a report
     Remove {

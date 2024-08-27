@@ -16,6 +16,7 @@ pub(crate) fn generate_report(
     from: chrono::NaiveDate,
     to: Option<chrono::NaiveDate>,
     tags: Option<Vec<String>>,
+    exclude_hours: bool,
 ) -> Result<(), RemarkError> {
     let to = get_date_or_default(to, chrono::Local::now().naive_local().into());
     let name = match name {
@@ -43,7 +44,7 @@ pub(crate) fn generate_report(
     {
         let writer = MdFile::<SerializableReport>::as_writer((&report).into(), &path)?;
 
-        output_report(writer, &tasks, &name)?;
+        output_report(writer, &tasks, &name, exclude_hours)?;
     }
 
     if let Err(err) = database::insert_report(&mut conn, &report) {

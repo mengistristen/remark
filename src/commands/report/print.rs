@@ -14,6 +14,7 @@ pub(crate) fn print_report(
     from: Option<chrono::NaiveDate>,
     to: Option<chrono::NaiveDate>,
     tags: Option<Vec<String>>,
+    exlude_hours: bool,
 ) -> Result<(), RemarkError> {
     let from = get_date_or_default(from, chrono::NaiveDate::MIN);
     let to = get_date_or_default(to, chrono::Local::now().naive_local().into());
@@ -21,7 +22,7 @@ pub(crate) fn print_report(
     let items = database::get_tasks_in_range(&mut conn, from, to, tags)?;
     let name = "Current".to_owned();
 
-    output_report(io::stdout(), &items, &name)?;
+    output_report(io::stdout(), &items, &name, exlude_hours)?;
 
     Ok(())
 }
