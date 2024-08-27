@@ -21,7 +21,7 @@ pub(crate) fn insert_project(
 
 pub(crate) fn update_project(
     conn: &mut SqliteConnection,
-    id: String,
+    id: &str,
     project: &UpdateProject,
 ) -> Result<Project, RemarkError> {
     diesel::update(projects_dsl::projects.filter(projects_dsl::id.eq(&id)))
@@ -33,7 +33,7 @@ pub(crate) fn update_project(
     Ok(project)
 }
 
-pub(crate) fn remove_project(conn: &mut SqliteConnection, id: &String) -> Result<(), RemarkError> {
+pub(crate) fn remove_project(conn: &mut SqliteConnection, id: &str) -> Result<(), RemarkError> {
     diesel::delete(projects_dsl::projects.filter(projects_dsl::id.eq(id))).execute(conn)?;
 
     Ok(())
@@ -41,7 +41,7 @@ pub(crate) fn remove_project(conn: &mut SqliteConnection, id: &String) -> Result
 
 pub(crate) fn get_project_like(
     conn: &mut SqliteConnection,
-    begins_with: &String,
+    begins_with: &str,
 ) -> Result<Project, RemarkError> {
     let mut projects = get_projects_like(conn, begins_with)?;
 
@@ -62,7 +62,7 @@ pub(crate) fn get_project_like(
 
 pub(crate) fn get_projects_like(
     conn: &mut SqliteConnection,
-    begins_with: &String,
+    begins_with: &str,
 ) -> Result<Vec<Project>, RemarkError> {
     let pattern = format!("{}%", begins_with);
     let result = projects_dsl::projects
@@ -113,7 +113,7 @@ pub(crate) fn insert_task(
 
 pub(crate) fn update_task(
     conn: &mut SqliteConnection,
-    id: &String,
+    id: &str,
     task: &UpdateTask,
 ) -> Result<Task, RemarkError> {
     conn.transaction::<_, diesel::result::Error, _>(|conn| {
@@ -132,7 +132,7 @@ pub(crate) fn update_task(
             let task_tags: Vec<TaskTag> = tags
                 .iter()
                 .map(|tag| TaskTag {
-                    task_id: id.clone(),
+                    task_id: id.to_owned(),
                     tag_name: tag.clone(),
                 })
                 .collect();
@@ -150,7 +150,7 @@ pub(crate) fn update_task(
     Ok(task)
 }
 
-pub(crate) fn remove_task(conn: &mut SqliteConnection, id: &String) -> Result<(), RemarkError> {
+pub(crate) fn remove_task(conn: &mut SqliteConnection, id: &str) -> Result<(), RemarkError> {
     diesel::delete(tasks_dsl::tasks.filter(tasks_dsl::id.eq(id))).execute(conn)?;
 
     Ok(())
@@ -158,7 +158,7 @@ pub(crate) fn remove_task(conn: &mut SqliteConnection, id: &String) -> Result<()
 
 pub(crate) fn get_tasks_for_project(
     conn: &mut SqliteConnection,
-    project_id: &String,
+    project_id: &str,
 ) -> Result<Vec<Task>, RemarkError> {
     let tasks = tasks_dsl::tasks
         .filter(tasks_dsl::project_id.eq(project_id))
@@ -170,7 +170,7 @@ pub(crate) fn get_tasks_for_project(
 
 pub(crate) fn get_task_like(
     conn: &mut SqliteConnection,
-    begins_with: &String,
+    begins_with: &str,
 ) -> Result<Task, RemarkError> {
     let mut tasks = get_tasks_like(conn, begins_with)?;
 
@@ -191,7 +191,7 @@ pub(crate) fn get_task_like(
 
 pub(crate) fn get_tasks_like(
     conn: &mut SqliteConnection,
-    begins_with: &String,
+    begins_with: &str,
 ) -> Result<Vec<Task>, RemarkError> {
     let pattern = format!("{}%", begins_with);
     let result = tasks_dsl::tasks
@@ -240,7 +240,7 @@ pub(crate) fn insert_report(
     Ok(())
 }
 
-pub(crate) fn remove_report(conn: &mut SqliteConnection, id: &String) -> Result<(), RemarkError> {
+pub(crate) fn remove_report(conn: &mut SqliteConnection, id: &str) -> Result<(), RemarkError> {
     diesel::delete(reports_dsl::reports.filter(reports_dsl::id.eq(id))).execute(conn)?;
 
     Ok(())
@@ -248,7 +248,7 @@ pub(crate) fn remove_report(conn: &mut SqliteConnection, id: &String) -> Result<
 
 pub(crate) fn get_report_like(
     conn: &mut SqliteConnection,
-    begins_with: &String,
+    begins_with: &str,
 ) -> Result<Report, RemarkError> {
     let mut reports = get_reports_like(conn, begins_with)?;
 
@@ -269,7 +269,7 @@ pub(crate) fn get_report_like(
 
 pub(crate) fn get_reports_like(
     conn: &mut SqliteConnection,
-    begins_with: &String,
+    begins_with: &str,
 ) -> Result<Vec<Report>, RemarkError> {
     let pattern = format!("{}%", begins_with);
     let result = reports_dsl::reports
@@ -290,7 +290,7 @@ pub(crate) fn get_all_reports(conn: &mut SqliteConnection) -> Result<Vec<Report>
 
 pub(crate) fn get_tags_for_task(
     conn: &mut SqliteConnection,
-    task_id: &String,
+    task_id: &str,
 ) -> Result<Option<Vec<String>>, RemarkError> {
     let result: Vec<String> = task_tags_dsl::task_tags
         .filter(task_tags_dsl::task_id.eq(task_id))

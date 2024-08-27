@@ -11,7 +11,7 @@ use crate::{
 };
 
 pub(crate) fn open_report(mut conn: SqliteConnection, id: String) -> Result<(), RemarkError> {
-    let report = get_report_like(&mut conn, &id)?;
+    let report = get_report_like(&mut conn, id.as_str())?;
     let report_path = get_path(RemarkDir::Report)?.join(format!("{}.md", report.id));
     let file = MdFile::<SerializableReport>::from_file(&report_path)?;
 

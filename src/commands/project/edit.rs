@@ -15,7 +15,7 @@ pub(crate) fn edit_project(
     id: String,
     metadata: bool,
 ) -> Result<(), RemarkError> {
-    let project = database::get_project_like(&mut conn, &id)?;
+    let project = database::get_project_like(&mut conn, id.as_str())?;
 
     let filename = format!("{}.md", project.id);
     let path = get_path(RemarkDir::Project)?.join(filename);
@@ -37,7 +37,7 @@ pub(crate) fn edit_project(
 
     if metadata {
         let deserialized = serde_yaml::from_str(contents.as_str())?;
-        let new_project = database::update_project(&mut conn, project.id, &deserialized)?;
+        let new_project = database::update_project(&mut conn, project.id.as_str(), &deserialized)?;
 
         let new_file =
             MdFile::<SerializableProject>::new((&new_project).into(), project_file.content);

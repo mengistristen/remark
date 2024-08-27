@@ -44,7 +44,7 @@ pub(crate) fn generate_report(
     {
         let writer = MdFile::<SerializableReport>::as_writer((&report).into(), &path)?;
 
-        output_report(writer, &tasks, &name, exclude_hours)?;
+        output_report(writer, &tasks, name.as_str(), exclude_hours)?;
     }
 
     if let Err(err) = database::insert_report(&mut conn, &report) {

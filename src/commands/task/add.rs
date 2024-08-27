@@ -21,7 +21,7 @@ pub(crate) fn add_task(mut conn: SqliteConnection, project_id: String) -> Result
     let date_str = prompt_user::<String>("Date (YYYY-MM-DD, default=today)")?;
     let tags_str = prompt_user::<String>("Tags")?;
 
-    let project = database::get_project_like(&mut conn, &project_id)?;
+    let project = database::get_project_like(&mut conn, project_id.as_str())?;
 
     let date = if date_str.is_empty() {
         chrono::Local::now().naive_local().into()

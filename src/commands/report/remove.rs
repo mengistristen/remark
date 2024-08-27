@@ -8,9 +8,9 @@ use crate::{
 };
 
 pub(crate) fn remove_report(mut conn: SqliteConnection, id: String) -> Result<(), RemarkError> {
-    let report = database::get_report_like(&mut conn, &id)?;
+    let report = database::get_report_like(&mut conn, id.as_str())?;
 
-    database::remove_report(&mut conn, &report.id)?;
+    database::remove_report(&mut conn, report.id.as_str())?;
 
     let report_path = get_path(RemarkDir::Report)?.join(format!("{}.md", report.id));
 

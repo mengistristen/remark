@@ -25,7 +25,7 @@ mod remove;
 pub(crate) fn output_report<T: Write>(
     mut writer: T,
     task_project_pairs: &Vec<(Task, Project)>,
-    report_name: &String,
+    report_name: &str,
     exclude_hours: bool,
 ) -> Result<(), RemarkError> {
     let mut current_date = None;

@@ -14,7 +14,7 @@ pub(crate) fn edit_task(
     id: String,
     metadata: bool,
 ) -> Result<(), RemarkError> {
-    let task = database::get_task_like(&mut conn, &id)?;
+    let task = database::get_task_like(&mut conn, id.as_str())?;
 
     let filename = format!("{}.md", task.id);
     let path = get_path(RemarkDir::Task)?.join(filename);
@@ -36,7 +36,7 @@ pub(crate) fn edit_task(
 
     if metadata {
         let deserialized = serde_yaml::from_str(contents.as_str())?;
-        let new_task = database::update_task(&mut conn, &task.id, &deserialized)?;
+        let new_task = database::update_task(&mut conn, task.id.as_str(), &deserialized)?;
 
         let new_file = MdFile::new(
             SerializableTask::from_task(&mut conn, &new_task)?,

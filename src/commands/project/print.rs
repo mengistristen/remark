@@ -15,7 +15,7 @@ pub(crate) fn print_project(
     id: String,
     include_tasks: bool,
 ) -> Result<(), RemarkError> {
-    let project = database::get_project_like(&mut conn, &id)?;
+    let project = database::get_project_like(&mut conn, id.as_str())?;
     let project_path = get_path(RemarkDir::Project)?.join(format!("{}.md", project.id));
     let file = MdFile::<SerializableProject>::from_file(&project_path)?;
     let mut stdout = io::stdout();
@@ -24,7 +24,7 @@ pub(crate) fn print_project(
 
     if include_tasks {
         let mut current_date = None;
-        let tasks = database::get_tasks_for_project(&mut conn, &project.id)?;
+        let tasks = database::get_tasks_for_project(&mut conn, project.id.as_str())?;
 
         writeln!(stdout)?;
 

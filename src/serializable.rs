@@ -39,7 +39,7 @@ impl<'a> SerializableTask<'a> {
         conn: &mut SqliteConnection,
         task: &'a Task,
     ) -> Result<Self, RemarkError> {
-        let tags = database::get_tags_for_task(conn, &task.id)?;
+        let tags = database::get_tags_for_task(conn, task.id.as_str())?;
 
         Ok(Self {
             id: Cow::Borrowed(&task.id),
@@ -101,7 +101,7 @@ pub struct UpdateTask<'a> {
 
 impl<'a> UpdateTask<'a> {
     pub fn from_task(conn: &mut SqliteConnection, task: &'a Task) -> Result<Self, RemarkError> {
-        let tags = database::get_tags_for_task(conn, &task.id)?;
+        let tags = database::get_tags_for_task(conn, task.id.as_str())?;
 
         Ok(Self {
             name: Cow::Borrowed(&task.name),
